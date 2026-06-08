@@ -1,0 +1,428 @@
+/* StudyFlow Dashboard Stylesheet */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon-wrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.stat-icon-wrapper.primary {
+  background-color: var(--primary-glow);
+  color: var(--primary);
+}
+
+.stat-icon-wrapper.danger {
+  background-color: var(--color-priority-high-bg);
+  color: var(--color-priority-high);
+}
+
+.stat-icon-wrapper.warning {
+  background-color: var(--color-priority-medium-bg);
+  color: var(--color-priority-medium);
+}
+
+.stat-icon-wrapper.success {
+  background-color: var(--color-priority-low-bg);
+  color: var(--color-priority-low);
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Main Dashboard Panels */
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-lg);
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.panel-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title i {
+  color: var(--primary);
+  width: 20px;
+  height: 20px;
+}
+
+/* Progress Section */
+.progress-widget {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: var(--spacing-sm) 0;
+  gap: 20px;
+}
+
+@media (max-width: 480px) {
+  .progress-widget {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.radial-progress-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.radial-progress-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.progress-track {
+  fill: none;
+  stroke: var(--bg-hover);
+  stroke-width: 10;
+}
+
+.progress-bar-fill {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 314.15; /* 2 * PI * r (r=50) */
+  stroke-dashoffset: 314.15;
+  transition: stroke-dashoffset var(--transition-slow) ease-in-out;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.progress-info-text h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.progress-info-text p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Deadline & Schedule Lists */
+.dashboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty-list-placeholder {
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  color: var(--text-muted);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.empty-list-placeholder i {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.dashboard-task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background-color: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.dashboard-task-item:hover {
+  transform: translateX(4px);
+  border-color: var(--primary);
+}
+
+.task-item-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.task-category-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.task-item-details {
+  overflow: hidden;
+}
+
+.task-item-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  margin-bottom: 2px;
+}
+
+.task-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.task-priority-badge {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.task-priority-badge.low {
+  background-color: var(--color-priority-low-bg);
+  color: var(--color-priority-low);
+}
+
+.task-priority-badge.medium {
+  background-color: var(--color-priority-medium-bg);
+  color: var(--color-priority-medium);
+}
+
+.task-priority-badge.high {
+  background-color: var(--color-priority-high-bg);
+  color: var(--color-priority-high);
+}
+
+.task-item-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.task-deadline-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.task-deadline-pill.urgent {
+  background-color: var(--color-priority-high-bg);
+  color: var(--color-priority-high);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.task-deadline-pill.overdue {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--color-priority-high);
+  border-color: rgba(239, 68, 68, 0.3);
+  text-decoration: line-through;
+}
+
+.task-status-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--text-muted);
+  color: transparent;
+  transition: all var(--transition-fast);
+}
+
+.task-status-btn:hover {
+  border-color: var(--color-priority-low);
+  color: var(--color-priority-low);
+  background-color: var(--color-priority-low-bg);
+}
+
+/* Announcement styles */
+.announcements-board {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.announcement-item {
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.announcement-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.announcement-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.announcement-content {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.announcement-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Admin panel elements */
+.admin-announcement-form {
+  margin-top: 12px;
+}
+
+.admin-form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.admin-form-control:focus {
+  border-color: var(--primary);
+}
+
+.admin-form-textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.admin-submit-btn {
+  padding: 8px 14px;
+  background-color: var(--primary);
+  color: var(--text-white);
+  border-radius: var(--radius-xs);
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: 100%;
+  transition: background var(--transition-fast);
+}
+
+.admin-submit-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Sticky Notes Board Styles */
+.sticky-note-card {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast) !important;
+}
+
+.sticky-note-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-md) !important;
+}
+
+.sticky-note-textarea:focus {
+  outline: none;
+}
+
+.color-dot:hover {
+  transform: scale(1.3);
+}

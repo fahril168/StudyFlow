@@ -1,0 +1,202 @@
+/* StudyFlow Academic Calendar CSS */
+
+.calendar-wrapper {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-hover);
+}
+
+.calendar-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.calendar-title-wrapper h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.calendar-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.calendar-nav-btn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  width: 100%;
+}
+
+.calendar-day-header {
+  padding: 12px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-hover);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-cell {
+  min-height: 110px;
+  padding: 8px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-card);
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.calendar-cell:nth-child(7n) {
+  border-right: none;
+}
+
+.calendar-cell:hover {
+  background-color: var(--bg-hover);
+}
+
+.calendar-cell.different-month {
+  background-color: var(--bg-app);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.calendar-cell.today {
+  background-color: var(--primary-glow);
+}
+
+.calendar-cell-date {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  align-self: flex-start;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.calendar-cell.today .calendar-cell-date {
+  background: var(--primary-gradient);
+  color: var(--text-white);
+}
+
+.calendar-cell-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.calendar-task-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: var(--text-white);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: block;
+}
+
+.calendar-task-tag.todo { filter: brightness(0.95); }
+.calendar-task-tag.inprogress { filter: brightness(0.95); }
+.calendar-task-tag.done { opacity: 0.6; text-decoration: line-through; }
+
+/* Modal popover checklist for calendar day clicked */
+.calendar-day-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calendar-modal-task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-hover);
+  transition: border-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.calendar-modal-task-item:hover {
+  border-color: var(--primary);
+}
+
+.calendar-modal-task-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calendar-modal-task-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.calendar-modal-task-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Responsiveness for Calendar */
+@media (max-width: 768px) {
+  .calendar-day-header {
+    font-size: 0.7rem;
+    padding: 8px 4px;
+  }
+  .calendar-cell {
+    min-height: 80px;
+    padding: 4px;
+  }
+  .calendar-cell-date {
+    font-size: 0.8rem;
+    width: 20px;
+    height: 20px;
+  }
+  .calendar-task-tag {
+    font-size: 0.6rem;
+    padding: 1px 3px;
+  }
+}
