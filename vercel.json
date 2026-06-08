@@ -10,4 +10,11 @@
     { "src": "/src/(.*)", "dest": "/src/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
+  "env": {
+    "MYSQL_HOST": "your-aiven-host",
+    "MYSQL_PORT": "3306",
+    "MYSQL_USER": "your-username",
+    "MYSQL_PASSWORD": "your-password",
+    "MYSQL_DATABASE": "your-database"
+  }
 }
