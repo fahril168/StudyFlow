@@ -13,11 +13,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// MySQL configuration (default XAMPP settings)
-$host = '127.0.0.1';
-$user = 'root';
-$password = '';
-$dbname = 'studyflow';
+// MySQL configuration (Dynamic local/Vercel settings)
+if (getenv('VERCEL') === '1') {
+    $host = getenv('MYSQL_HOST');
+    $user = getenv('MYSQL_USER');
+    $password = getenv('MYSQL_PASSWORD');
+    $dbname = getenv('MYSQL_DATABASE');
+} else {
+    $host = '127.0.0.1';
+    $user = 'root';
+    $password = '';
+    $dbname = 'studyflow';
+}
 
 try {
     // Connect to MySQL server first to check/create db
