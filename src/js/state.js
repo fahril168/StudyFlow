@@ -1,5 +1,25 @@
 /* StudyFlow Asynchronous Central State Management (MySQL Backend) */
 
+// Fetch interceptor to support running under any XAMPP subdirectory
+(function() {
+  const originalFetch = window.fetch;
+  window.fetch = function(input, init) {
+    if (typeof input === 'string' && input.includes('/api/')) {
+      const pathname = window.location.pathname;
+      let root = '';
+      const lastSlashIndex = pathname.lastIndexOf('/');
+      if (lastSlashIndex > 0) {
+        root = pathname.substring(0, lastSlashIndex);
+      }
+      const base = root ? `${root}/api` : '/api';
+      const apiIndex = input.indexOf('/api/');
+      const endpoint = input.substring(apiIndex + 5);
+      input = `${base}/${endpoint}`;
+    }
+    return originalFetch(input, init);
+  };
+})();
+
 const STATE_USER_KEY = 'studyflow_user_session';
 const STATE_THEME_KEY = 'studyflow_theme_pref';
 
