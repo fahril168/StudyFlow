@@ -1,7 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-(Dotenv\Dotenv::createImmutable(__DIR__ . '/..'))->load();
+
 /*
  * StudyFlow PHP + MySQL Backend (XAMPP & Apache)
  * Serves as the unified REST API router.
@@ -16,24 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// MySQL configuration (Dynamic local/Vercel settings)
-if (getenv('VERCEL') === '1') {
-    $host = getenv('MYSQL_HOST');
-    $port = getenv('MYSQL_PORT') ?: '3306';
-    $user = getenv('MYSQL_USER');
-    $password = getenv('MYSQL_PASSWORD');
-    $dbname = getenv('MYSQL_DATABASE');
-} else {
-    $host = '127.0.0.1';
-    $port = '3306';
-    $user = 'root';
-    $password = '';
-    $dbname = 'studyflow';
-}
+// MySQL configuration (local XAMPP)
+$host = '127.0.0.1';
+$user = 'root';
+$password = '';
+$dbname = 'studyflow';
 
 try {
     // Connect to MySQL server first to check/create db
-    $pdo = new PDO("mysql:host=$host;port=$port", $user, $password, [
+    $pdo = new PDO("mysql:host=$host", $user, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
