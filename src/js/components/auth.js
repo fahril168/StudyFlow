@@ -49,7 +49,7 @@ export function renderAuth(container, onAuthSuccess) {
       <div class="demo-credentials">
         <h5>💡 Akun Demo (Gunakan untuk Uji Coba):</h5>
         <p><strong>Mahasiswa:</strong> <code>student@studyflow.id</code> / <code>student123</code></p>
-        <p><strong>Admin:</strong> <code>admin@studyflow.id</code> / <code>admin123</code></p>
+
       </div>
     </div>
   `;
@@ -70,23 +70,6 @@ export function renderAuth(container, onAuthSuccess) {
           <div class="input-wrapper">
             <i data-lucide="user"></i>
             <input type="text" id="reg-name" class="form-control" placeholder="Reza Aditya" required>
-          </div>
-        </div>
-
-        <div class="role-toggle-group">
-          <div class="role-radio">
-            <input type="radio" id="role-student" name="reg-role" value="student" checked>
-            <label for="role-student" class="role-label">
-              <i data-lucide="user-check"></i>
-              <span>Mahasiswa</span>
-            </label>
-          </div>
-          <div class="role-radio">
-            <input type="radio" id="role-admin" name="reg-role" value="admin">
-            <label for="role-admin" class="role-label">
-              <i data-lucide="shield"></i>
-              <span>Admin</span>
-            </label>
           </div>
         </div>
 
@@ -141,28 +124,7 @@ export function renderAuth(container, onAuthSuccess) {
       });
     }
 
-    // Role radio change in register to adjust labels (Student NIM vs Admin ID)
-    const roleRadios = container.querySelectorAll('input[name="reg-role"]');
-    roleRadios.forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        const nimLabel = container.querySelector('#nim-label');
-        const nimInput = container.querySelector('#reg-nim');
-        const prodiLabel = container.querySelector('#prodi-label');
-        const prodiInput = container.querySelector('#reg-prodi');
-        
-        if (e.target.value === 'admin') {
-          if (nimLabel) nimLabel.textContent = 'Kode/ID Admin';
-          if (nimInput) nimInput.placeholder = 'ADM-101';
-          if (prodiLabel) prodiLabel.textContent = 'Divisi / Bagian';
-          if (prodiInput) prodiInput.placeholder = 'Administrasi Akademik';
-        } else {
-          if (nimLabel) nimLabel.textContent = 'NIM (Nomor Induk Mahasiswa)';
-          if (nimInput) nimInput.placeholder = '10121045';
-          if (prodiLabel) prodiLabel.textContent = 'Program Studi';
-          if (prodiInput) prodiInput.placeholder = 'Teknik Informatika';
-        }
-      });
-    });
+
 
     const loginForm = container.querySelector('#login-form');
     if (loginForm) {
@@ -187,13 +149,12 @@ export function renderAuth(container, onAuthSuccess) {
       registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = container.querySelector('#reg-name').value;
-        const role = container.querySelector('input[name="reg-role"]:checked').value;
         const nim = container.querySelector('#reg-nim').value;
         const prodi = container.querySelector('#reg-prodi').value;
         const email = container.querySelector('#reg-email').value;
         const password = container.querySelector('#reg-password').value;
 
-        const res = await stateManager.register(name, nim, prodi, email, password, role);
+        const res = await stateManager.register(name, nim, prodi, email, password);
         if (res.success) {
           showToast('Registrasi berhasil! Silakan masuk menggunakan akun baru Anda.', 'success');
           isLogin = true;
