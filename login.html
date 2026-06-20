@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - StudyFlow</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="src/css/variables.css">
+  <link rel="stylesheet" href="src/css/main.css">
+  <link rel="stylesheet" href="src/css/auth.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div id="auth-container" class="auth-container">
+    
+    <!-- Login View -->
+    <div id="login-view" class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <i data-lucide="graduation-cap"></i>
+        </div>
+        <h2 class="auth-title">StudyFlow</h2>
+        <p class="auth-subtitle">Manajemen Tugas & Jadwal Akademis</p>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email Akun</label>
+          <div class="input-wrapper">
+            <i data-lucide="mail"></i>
+            <input type="email" id="login-email" class="form-control" placeholder="nim/nama@studyflow.id" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Kata Sandi</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="auth-btn">Masuk ke Dashboard</button>
+      </form>
+
+      <div class="auth-footer">
+        Belum punya akun? <a href="#" id="toggle-to-register">Daftar Sekarang</a>
+      </div>
+
+      <div class="demo-credentials">
+        <h5>Akun Demo:</h5>
+        <p><strong>Mahasiswa:</strong> <code>student@studyflow.id</code> / <code>student123</code></p>
+        <p><strong>Admin:</strong> <code>admin@studyflow.id</code> / <code>admin123</code></p>
+      </div>
+    </div>
+
+    <!-- Register View -->
+    <div id="register-view" class="auth-card hidden">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <i data-lucide="graduation-cap"></i>
+        </div>
+        <h2 class="auth-title">Pendaftaran</h2>
+        <p class="auth-subtitle">Buat akun akademik StudyFlow Anda</p>
+      </div>
+
+      <form id="register-form">
+        <div class="form-group">
+          <label for="reg-name">Nama Lengkap</label>
+          <div class="input-wrapper">
+            <i data-lucide="user"></i>
+            <input type="text" id="reg-name" class="form-control" placeholder="Reza Aditya" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-nim" id="nim-label">NIM (Nomor Induk Mahasiswa)</label>
+          <div class="input-wrapper">
+            <i data-lucide="credit-card" id="nim-icon"></i>
+            <input type="text" id="reg-nim" class="form-control" placeholder="10121045" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-prodi" id="prodi-label">Program Studi</label>
+          <div class="input-wrapper">
+            <i data-lucide="book-open"></i>
+            <input type="text" id="reg-prodi" class="form-control" placeholder="Teknik Informatika" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Alamat Email</label>
+          <div class="input-wrapper">
+            <i data-lucide="mail"></i>
+            <input type="email" id="reg-email" class="form-control" placeholder="reza@studyflow.id" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Kata Sandi</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input type="password" id="reg-password" class="form-control" placeholder="Minimal 6 karakter" minlength="6" required>
+          </div>
+        </div>
+
+        <button type="submit" class="auth-btn">Daftar Akun Baru</button>
+      </form>
+
+      <div class="auth-footer">
+        Sudah memiliki akun? <a href="#" id="toggle-to-login">Masuk di sini</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+  <script type="module" src="src/js/login.js"></script>
+</body>
+</html>

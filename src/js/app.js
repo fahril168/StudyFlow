@@ -1,10 +1,8 @@
 /* StudyFlow Central Application Bootstrapper & Router */
 
 import { stateManager } from './state.js';
-import { renderAuth } from './components/auth.js';
 
 // Dom References
-const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const viewContainer = document.getElementById('view-container');
 const pageTitle = document.getElementById('page-title');
@@ -76,21 +74,15 @@ function checkAuthAndRoute() {
   const user = stateManager.getCurrentUser();
 
   if (!user) {
-    // Show login screen
-    appContainer.classList.add('hidden');
-    authContainer.classList.remove('hidden');
-    renderAuth(authContainer, () => {
-      // On success, update layout and load dashboard view
-      initAppLayout();
-      // Force route evaluation after login (handles case where hash already #dashboard)
-      checkAuthAndRoute();
-    });
+    // If not authenticated, redirect to login.html
+    window.location.href = 'login.html';
     return;
   }
 
   // Show app layout
-  authContainer.classList.add('hidden');
-  appContainer.classList.remove('hidden');
+  if (appContainer) {
+    appContainer.classList.remove('hidden');
+  }
 
   // Update user info in layout
   sidebarUserName.textContent = user.name;
