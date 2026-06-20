@@ -27,6 +27,7 @@ class StateManager {
   constructor() {
     this.currentUser = null;
     this.theme = 'light';
+    this.selectedStudentId = null;
     this.loadSession();
   }
 
@@ -119,6 +120,14 @@ class StateManager {
     return this.currentUser;
   }
 
+  getSelectedStudentId() {
+    return this.selectedStudentId;
+  }
+
+  setSelectedStudentId(id) {
+    this.selectedStudentId = id;
+  }
+
   async getStudents() {
     try {
       const res = await fetch('/api/students');
@@ -159,7 +168,13 @@ class StateManager {
   async getTasks() {
     if (!this.currentUser) return [];
     try {
-      const res = await fetch(`/api/tasks?userId=${this.currentUser.id}&role=${this.currentUser.role}`);
+      let userId = this.currentUser.id;
+      let role = this.currentUser.role;
+      if (role === 'admin' && this.selectedStudentId) {
+        userId = this.selectedStudentId;
+        role = 'student';
+      }
+      const res = await fetch(`/api/tasks?userId=${userId}&role=${role}`);
       if (!res.ok) throw new Error('Failed to fetch tasks');
       const data = await res.json();
       return data;
@@ -172,10 +187,14 @@ class StateManager {
   async addTask(taskData) {
     if (!this.currentUser) return null;
     try {
+      let studentId = this.currentUser.id;
+      if (this.currentUser.role === 'admin' && this.selectedStudentId) {
+        studentId = this.selectedStudentId;
+      }
       const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: this.currentUser.id, ...taskData })
+        body: JSON.stringify({ studentId, ...taskData })
       });
       if (!res.ok) throw new Error('Failed to create task');
       const data = await res.json();
@@ -344,7 +363,11 @@ class StateManager {
   async getNotes() {
     if (!this.currentUser) return [];
     try {
-      const res = await fetch(`/api/notes?userId=${this.currentUser.id}`);
+      let userId = this.currentUser.id;
+      if (this.currentUser.role === 'admin' && this.selectedStudentId) {
+        userId = this.selectedStudentId;
+      }
+      const res = await fetch(`/api/notes?userId=${userId}`);
       if (!res.ok) throw new Error('Failed to fetch notes');
       return await res.json();
     } catch (error) {

@@ -98,8 +98,64 @@ function checkAuthAndRoute() {
   sidebarAvatar.src = user.avatar;
   headerAvatar.src = user.avatar;
 
+  // Handle admin global student selector widget and menu items visibility
+  const adminWidget = document.getElementById('sidebar-admin-widget');
+  if (adminWidget) {
+    if (user.role === 'admin') {
+      adminWidget.classList.remove('hidden');
+      const globalSelect = document.getElementById('global-student-select');
+
+      // Control visibility of student dependent menus
+      const selectedStudentId = stateManager.getSelectedStudentId() || '';
+      document.querySelectorAll('.student-dependent-menu').forEach(item => {
+        if (selectedStudentId) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      if (globalSelect && globalSelect.options.length <= 1) {
+        stateManager.getStudents().then(students => {
+          let optionsHtml = '<option value="">-- Pilih Mahasiswa --</option>';
+          students.forEach(s => {
+            optionsHtml += `<option value="${s.id}">${s.name}</option>`;
+          });
+          globalSelect.innerHTML = optionsHtml;
+          globalSelect.value = stateManager.getSelectedStudentId() || '';
+
+          const globalSelectText = document.getElementById('global-student-select-text');
+          if (globalSelectText && globalSelect.selectedIndex >= 0) {
+            globalSelectText.textContent = globalSelect.options[globalSelect.selectedIndex].text;
+          }
+        });
+      } else if (globalSelect) {
+        globalSelect.value = stateManager.getSelectedStudentId() || '';
+        const globalSelectText = document.getElementById('global-student-select-text');
+        if (globalSelectText && globalSelect.selectedIndex >= 0) {
+          globalSelectText.textContent = globalSelect.options[globalSelect.selectedIndex].text;
+        }
+      }
+    } else {
+      adminWidget.classList.add('hidden');
+      // For student role, always show dependent menus
+      document.querySelectorAll('.student-dependent-menu').forEach(item => {
+        item.classList.remove('hidden');
+      });
+    }
+  }
+
   // Handle routing based on hash
   let hash = window.location.hash;
+
+  // If admin and no student is selected, restrict routing to dashboard and profile
+  if (user.role === 'admin' && !stateManager.getSelectedStudentId()) {
+    if (hash === '#tasks' || hash === '#calendar' || hash === '#stats') {
+      hash = '#dashboard';
+      window.location.hash = '#dashboard';
+    }
+  }
+
   if (!hash || !viewRoutes[hash]) {
     hash = '#dashboard';
     window.location.hash = '#dashboard';
@@ -192,6 +248,30 @@ function initAppLayout() {
     notificationBadge.textContent = '0';
     showToast('Semua notifikasi dibersihkan.', 'info');
   });
+
+  // Global student selector listener
+  const globalSelect = document.getElementById('global-student-select');
+  const globalSelectText = document.getElementById('global-student-select-text');
+
+  if (globalSelect) {
+    if (!globalSelect.dataset.listenerAdded) {
+      globalSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (globalSelectText) {
+          const selectedOption = e.target.options[e.target.selectedIndex];
+          globalSelectText.textContent = selectedOption ? selectedOption.text : '-- Pilih Mahasiswa --';
+        }
+        stateManager.setSelectedStudentId(val);
+        checkAuthAndRoute();
+      });
+      globalSelect.dataset.listenerAdded = 'true';
+    }
+
+    // Set initial text if already populated
+    if (globalSelectText && globalSelect.selectedIndex >= 0) {
+      globalSelectText.textContent = globalSelect.options[globalSelect.selectedIndex].text;
+    }
+  }
 }
 
 // Updates notification items in top bar

@@ -65,19 +65,32 @@
               <span>Dashboard</span>
             </a>
           </li>
-          <li>
+
+          <!-- Admin Student Selector -->
+          <li id="sidebar-admin-widget" class="hidden" style="position: relative;">
+            <div class="sidebar-student-select-box">
+              <i data-lucide="users"></i>
+              <span id="global-student-select-text">-- Pilih Mahasiswa --</span>
+              <i data-lucide="chevron-down" style="margin-left: auto; width: 16px; height: 16px;"></i>
+              <select id="global-student-select">
+                <option value="">-- Pilih Mahasiswa --</option>
+              </select>
+            </div>
+          </li>
+
+          <li class="student-dependent-menu">
             <a href="#tasks" class="nav-link" id="nav-tasks">
               <i data-lucide="check-square"></i>
               <span>Manajemen Tugas</span>
             </a>
           </li>
-          <li>
+          <li class="student-dependent-menu">
             <a href="#calendar" class="nav-link" id="nav-calendar">
               <i data-lucide="calendar"></i>
               <span>Kalender Akademik</span>
             </a>
           </li>
-          <li>
+          <li class="student-dependent-menu">
             <a href="#stats" class="nav-link" id="nav-stats">
               <i data-lucide="bar-chart-2"></i>
               <span>Statistik</span>

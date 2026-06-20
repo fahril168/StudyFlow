@@ -49,7 +49,7 @@ export function renderAuth(container, onAuthSuccess) {
       <div class="demo-credentials">
         <h5>💡 Akun Demo (Gunakan untuk Uji Coba):</h5>
         <p><strong>Mahasiswa:</strong> <code>student@studyflow.id</code> / <code>student123</code></p>
-
+        <p><strong>Admin:</strong> <code>admin@studyflow.id</code> / <code>admin123</code></p>
       </div>
     </div>
   `;
