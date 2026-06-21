@@ -7,7 +7,39 @@ let currentDate = new Date(); // Tracks the currently viewed month
 
 export async function renderCalendar(container) {
   await renderLayout(container);
-  bindCalendarEvents(container);
+
+  // Use event delegation to handle clicks, avoiding the need to re-bind after every render
+  if (!container._calendarEventsBound) {
+    container.addEventListener('click', async (e) => {
+      // Ensure we are in the calendar view
+      if (window.location.hash !== '#calendar') return;
+
+      const prevBtn = e.target.closest('#prev-month-btn');
+      if (prevBtn) {
+        // Handle month wrapping carefully by setting date to 1st first to avoid skipping months on 31st
+        currentDate.setDate(1); 
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        await renderLayout(container);
+        return;
+      }
+
+      const nextBtn = e.target.closest('#next-month-btn');
+      if (nextBtn) {
+        currentDate.setDate(1);
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        await renderLayout(container);
+        return;
+      }
+
+      const todayBtn = e.target.closest('#today-btn');
+      if (todayBtn) {
+        currentDate = new Date();
+        await renderLayout(container);
+        return;
+      }
+    });
+    container._calendarEventsBound = true;
+  }
 }
 
 async function renderLayout(container) {
@@ -170,25 +202,7 @@ async function renderDaysGrid() {
   });
 }
 
-function bindCalendarEvents(container) {
-  // Prev Month
-  container.querySelector('#prev-month-btn').onclick = async () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    await renderLayout(container);
-  };
 
-  // Next Month
-  container.querySelector('#next-month-btn').onclick = async () => {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    await renderLayout(container);
-  };
-
-  // Today
-  container.querySelector('#today-btn').onclick = async () => {
-    currentDate = new Date();
-    await renderLayout(container);
-  };
-}
 
 // Opens details modal when clicking a date cell
 function openCellDetailsModal(dateStr, tasks, categories) {
