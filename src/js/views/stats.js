@@ -317,21 +317,7 @@ async function renderStudentDashboard(targetContainer, studentId, isAdminViewing
           <div class="heatmap-grid" id="heatmap-grid-container"></div>
         </div>
 
-        <div class="insight-section">
-          <h3><i data-lucide="lightbulb"></i> Rekomendasi & Insight Cepat</h3>
-          <ul class="insight-list" id="insights-container"></ul>
-        </div>
-      </div>
-
-      <!-- Export Panel -->
-      <div class="stats-export-wrapper">
-        <button id="export-csv-btn" class="btn-secondary">
-          <i data-lucide="file-spreadsheet"></i> Ekspor CSV
-        </button>
-        <button id="export-json-btn" class="btn-secondary">
-          <i data-lucide="file-json"></i> Ekspor JSON
-        </button>
-      </div>
+        
     </div>
   `;
 
@@ -395,15 +381,21 @@ function refreshCalculatedData() {
   renderInsights(calculated);
   renderCharts(calculated);
 
-  // Bind Export handlers with currently filtered metrics
-  document.getElementById('export-csv-btn').onclick = () => {
-    const data = calculated.weeklyCompletion.map(w => ({ Minggu: w.label, Selesai: w.count }));
-    downloadCSV(data, `statistik_mahasiswa_${localSelectedStudentId}.csv`);
-  };
+  // Bind Export handlers with currently filtered metrics (if buttons exist)
+  const exportCsvBtn = document.getElementById('export-csv-btn');
+  if (exportCsvBtn) {
+    exportCsvBtn.onclick = () => {
+      const data = calculated.weeklyCompletion.map(w => ({ Minggu: w.label, Selesai: w.count }));
+      downloadCSV(data, `statistik_mahasiswa_${localSelectedStudentId}.csv`);
+    };
+  }
 
-  document.getElementById('export-json-btn').onclick = () => {
-    downloadJSON(calculated, `statistik_mahasiswa_${localSelectedStudentId}.json`);
-  };
+  const exportJsonBtn = document.getElementById('export-json-btn');
+  if (exportJsonBtn) {
+    exportJsonBtn.onclick = () => {
+      downloadJSON(calculated, `statistik_mahasiswa_${localSelectedStudentId}.json`);
+    };
+  }
 }
 
 // -----------------------------------------------------------------

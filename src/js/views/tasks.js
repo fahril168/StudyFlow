@@ -244,6 +244,11 @@ function getKanbanCardHTML(task, categories) {
           <i data-lucide="calendar"></i>
           <span>${dateFormatted}</span>
         </div>
+        ${stateManager.getCurrentUser().role !== 'admin' ? `
+          <button class="card-delete-btn" data-task-id="${task.id}" title="Hapus Tugas" style="margin-left: 8px; background:none; border:none; color: var(--danger); cursor:pointer;">
+            <i data-lucide="trash-2"></i>
+          </button>
+        ` : ''}
       </div>
     </div>
   `;
@@ -417,10 +422,27 @@ function bindDragAndDropHandlers() {
 // Card details modal trigger
 function bindCardClickListeners() {
   document.querySelectorAll('.task-card').forEach(card => {
+    // Open modal on card click
     card.addEventListener('click', async () => {
       const taskId = card.getAttribute('data-task-id');
       await openTaskFormModal(taskId, document.querySelector('.view-container'));
     });
+
+    // Delete button inside card (if present)
+    const deleteBtn = card.querySelector('.card-delete-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation(); // Prevent opening modal
+        const taskId = deleteBtn.getAttribute('data-task-id');
+        if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
+          await stateManager.deleteTask(taskId);
+          showToast('Tugas berhasil dihapus.', 'success');
+          await renderViewContent();
+          // Refresh notifications / hashchange
+          window.dispatchEvent(new CustomEvent('hashchange'));
+        }
+      });
+    }
   });
 }
 
