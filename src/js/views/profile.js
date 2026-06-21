@@ -60,14 +60,14 @@ export async function renderProfile(container, navigateTo) {
               <label class="form-label">Pilih Avatar Profil Anda</label>
               <div class="avatar-presets-grid">
                 ${avatarSeeds.map(seed => {
-                  const url = `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}`;
-                  const isSelected = selectedAvatar === url;
-                  return `
+      const url = `https://api.dicebear.com/7.x/adventurer/svg?seed=${seed}`;
+      const isSelected = selectedAvatar === url;
+      return `
                     <button type="button" class="avatar-preset-btn ${isSelected ? 'selected' : ''}" data-url="${url}">
                       <img src="${url}" alt="Avatar ${seed}">
                     </button>
                   `;
-                }).join('')}
+    }).join('')}
               </div>
             </div>
 
@@ -109,12 +109,12 @@ export async function renderProfile(container, navigateTo) {
     // Avatar Preset Toggles
     const avatarBtns = container.querySelectorAll('.avatar-preset-btn');
     const avatarPreview = container.querySelector('#profile-avatar-preview');
-    
+
     avatarBtns.forEach(btn => {
       btn.onclick = () => {
         avatarBtns.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        
+
         const url = btn.getAttribute('data-url');
         selectedAvatar = url;
         avatarPreview.src = url;
@@ -147,7 +147,7 @@ export async function renderProfile(container, navigateTo) {
 
       if (res.success) {
         showToast('Profil Anda berhasil diperbarui!', 'success');
-        
+
         // Update header & sidebar DOM widgets immediately
         document.getElementById('sidebar-user-name').textContent = res.user.name;
         document.getElementById('sidebar-avatar').src = res.user.avatar;
