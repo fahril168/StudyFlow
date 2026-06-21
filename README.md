@@ -61,9 +61,10 @@ Gunakan kredensial berikut untuk menguji coba dua peran yang berbeda:
 ```
 studyflow/
 ├── index.html            # Entrypoint utama SPA & Router Shell
-├── package.json          # Script penjalan Node.js server
-├── server.js             # File server lokal zero-dependency
+├── login.html            # Halaman login
 ├── README.md             # Petunjuk pengoperasian project
+├── api/                  # Backend PHP
+│   └── index.php         # REST API Router
 └── src/
     ├── css/              # Kumpulan stylesheet
     │   ├── variables.css # Token desain warna & tema
@@ -77,8 +78,7 @@ studyflow/
     └── js/               # Logic aplikasi
         ├── app.js        # Bootstrapper utama, router, modal & toast helper
         ├── state.js      # Central State, CRUD, & LocalStorage sync
-        ├── components/
-        │   └── auth.js   # Kontrol form login/register & validasi peran
+        ├── login.js      # Kontrol form login/register & validasi peran
         └── views/
             ├── dashboard.js # Kontrol render ringkasan widget (student/admin)
             ├── tasks.js     # Kontrol board Kanban drag-and-drop & form CRUD

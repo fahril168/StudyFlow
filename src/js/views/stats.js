@@ -1,5 +1,4 @@
 import { stateManager } from '../state.js';
-import { downloadCSV, downloadJSON } from '../utils.js';
 
 // Hold references to active chart instances to prevent canvas collision errors on re-render
 let weeklyChartInstance = null;
@@ -380,24 +379,7 @@ function refreshCalculatedData() {
   renderHeatmap(calculated.heatmap);
   renderInsights(calculated);
   renderCharts(calculated);
-
-  // Bind Export handlers with currently filtered metrics (if buttons exist)
-  const exportCsvBtn = document.getElementById('export-csv-btn');
-  if (exportCsvBtn) {
-    exportCsvBtn.onclick = () => {
-      const data = calculated.weeklyCompletion.map(w => ({ Minggu: w.label, Selesai: w.count }));
-      downloadCSV(data, `statistik_mahasiswa_${localSelectedStudentId}.csv`);
-    };
-  }
-
-  const exportJsonBtn = document.getElementById('export-json-btn');
-  if (exportJsonBtn) {
-    exportJsonBtn.onclick = () => {
-      downloadJSON(calculated, `statistik_mahasiswa_${localSelectedStudentId}.json`);
-    };
-  }
 }
-
 // -----------------------------------------------------------------
 // RENDERING FUNCTIONS FOR DETAILED STATS SCREEN
 // -----------------------------------------------------------------
