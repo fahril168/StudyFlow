@@ -277,35 +277,6 @@ class StateManager {
     }
   }
 
-  // Announcements API (Asynchronous API Calls)
-  async getAnnouncements() {
-    try {
-      const res = await fetch('/api/announcements');
-      if (!res.ok) throw new Error('Failed to fetch announcements');
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      console.error('Get announcements error:', error);
-      return [];
-    }
-  }
-
-  async addAnnouncement(title, content) {
-    if (!this.currentUser || this.currentUser.role !== 'admin') return null;
-    try {
-      const res = await fetch('/api/announcements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content, author: this.currentUser.name })
-      });
-      if (!res.ok) throw new Error('Failed to create announcement');
-      const data = await res.json();
-      return data;
-    } catch (error) {
-      console.error('Add announcement error:', error);
-      return null;
-    }
-  }
 
   // Reminders API (Asynchronous Calculation from Database Tasks)
   async getReminders() {

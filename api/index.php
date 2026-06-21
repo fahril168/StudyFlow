@@ -49,13 +49,7 @@ try {
         color VARCHAR(20) NOT NULL
     )");
 
-    $pdo->exec("CREATE TABLE IF NOT EXISTS announcements (
-        id VARCHAR(50) PRIMARY KEY,
-        title VARCHAR(200) NOT NULL,
-        content TEXT NOT NULL,
-        date VARCHAR(50) NOT NULL,
-        author VARCHAR(100) NOT NULL
-    )");
+
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS tasks (
         id VARCHAR(50) PRIMARY KEY,
@@ -133,9 +127,7 @@ try {
         $stmt->execute(['task-10', 'Kuis AI DFS & BFS', 'cat-ai', 'tinggi', 'done', $yesterdayStr, 'Kuis online di e-learning.', '[]', '[]', 'stud-1', '2026-05-19T08:00:00.000Z', '2026-05-20T09:30:00.000Z']);
         $stmt->execute(['task-11', 'Analisis Kebutuhan Sistem', 'cat-rpl', 'sedang', 'done', $yesterdayStr, 'Studi kasus SRS kebutuhan fungsional.', '[]', '[]', 'stud-1', '2026-05-10T14:00:00.000Z', '2026-05-13T16:00:00.000Z']);
 
-        // Seed announcements
-        $pdo->exec("INSERT INTO announcements (id, title, content, date, author) VALUES 
-        ('ann-1', 'Jadwal Ujian Akhir Semester (UAS)', 'UAS akan dimulai tanggal 15 Juni 2026. Harap persiapkan kartu ujian Anda.', '2026-06-07', 'Dr. Budi Santoso')");
+
 
         // Seed sticky notes
         $now = gmdate('Y-m-d\TH:i:s.000\Z');
@@ -282,26 +274,6 @@ elseif (preg_match('#^/categories/([^/]+)$#', $path, $matches) && $request_metho
     $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
     $stmt->execute([$catId]);
     sendJson(['success' => true]);
-}
-
-elseif ($path === '/announcements' && $request_method === 'GET') {
-    $stmt = $pdo->query("SELECT * FROM announcements ORDER BY date DESC, id DESC");
-    sendJson($stmt->fetchAll());
-}
-
-elseif ($path === '/announcements' && $request_method === 'POST') {
-    $body = getJsonBody();
-    $title = $body['title'] ?? '';
-    $content = $body['content'] ?? '';
-    $author = $body['author'] ?? '';
-    
-    $id = 'ann-' . round(microtime(true) * 1000);
-    $dateStr = date('Y-m-d');
-    
-    $stmt = $pdo->prepare("INSERT INTO announcements (id, title, content, date, author) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$id, $title, $content, $dateStr, $author]);
-    
-    sendJson(['id' => $id, 'title' => $title, 'content' => $content, 'date' => $dateStr, 'author' => $author]);
 }
 
 elseif ($path === '/notes' && $request_method === 'GET') {

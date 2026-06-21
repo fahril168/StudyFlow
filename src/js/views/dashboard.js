@@ -186,7 +186,7 @@ async function renderStudentDashboard(container, user) {
         </div>
       </div>
 
-      <!-- Right Column: Schedule and Announcements -->
+      <!-- Right Column: Schedule and Sticky Notes -->
       <div class="panel-right">
         <!-- Today's Schedule -->
         <div class="panel-card">
@@ -510,15 +510,5 @@ function formatDate(dateStr) {
     month: 'short',
     hour: '2-digit',
     minute: '2-digit'
-  });
-}
-
-function formatSimpleDate(dateStr) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
   });
 }

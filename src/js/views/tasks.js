@@ -777,7 +777,7 @@ async function openManageCategoriesModal(pageContainer) {
   
   const getCategoriesHTML = () => `
     <div class="manage-categories-wrapper">
-      <div class="announcements-board" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px;" id="categories-modal-list">
+      <div style="display: flex; flex-direction: column; gap: 16px; max-height: 250px; overflow-y: auto; margin-bottom: 20px;" id="categories-modal-list">
         ${categories.map(c => `
           <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border-color);">
             <div style="display: flex; align-items: center; gap: 8px;">
