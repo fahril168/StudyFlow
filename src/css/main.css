@@ -361,7 +361,6 @@ button {
 }
 
 /* Buttons in Header */
-.theme-toggle-btn,
 .notification-btn {
   padding: 12px;
   /* equal padding all sides for symmetry */
@@ -376,7 +375,6 @@ button {
   transition: all var(--transition-fast);
 }
 
-.theme-toggle-btn:hover,
 .notification-btn:hover {
   background-color: var(--bg-hover);
   color: var(--text-primary);
@@ -384,34 +382,6 @@ button {
   box-shadow: var(--shadow-sm);
 }
 
-.theme-toggle-btn i {
-  position: static;
-  /* center within flex container */
-  width: 20px;
-  height: 20px;
-  transition: transform var(--transition-normal), opacity var(--transition-normal);
-}
-
-/* Theme Switcher Toggle visibility */
-html[data-theme="light"] .theme-toggle-btn .sun-icon {
-  opacity: 0;
-  transform: rotate(90deg) scale(0);
-}
-
-html[data-theme="light"] .theme-toggle-btn .moon-icon {
-  opacity: 1;
-  transform: rotate(0) scale(1);
-}
-
-html[data-theme="dark"] .theme-toggle-btn .sun-icon {
-  opacity: 1;
-  transform: rotate(0) scale(1);
-}
-
-html[data-theme="dark"] .theme-toggle-btn .moon-icon {
-  opacity: 0;
-  transform: rotate(-90deg) scale(0);
-}
 
 /* Notifications Badge & Dropdown */
 .notification-btn .badge {

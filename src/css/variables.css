@@ -46,8 +46,8 @@
   --color-done-bg: rgba(16, 185, 129, 0.1);
 }
 
-/* Light Theme Variables */
-html[data-theme="light"] {
+/* Default Light Theme Variables */
+:root {
   --bg-app: #f4f5f9;
   --bg-sidebar: rgba(255, 255, 255, 0.85);
   --bg-header: rgba(255, 255, 255, 0.85);
@@ -77,33 +77,3 @@ html[data-theme="light"] {
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
 }
 
-/* Dark Theme Variables */
-html[data-theme="dark"] {
-  --bg-app: #080b11;
-  --bg-sidebar: rgba(15, 22, 36, 0.85);
-  --bg-header: rgba(15, 22, 36, 0.85);
-  --bg-card: #131b2e;
-  --bg-card-hover: #17223b;
-  --bg-input: #0f172a;
-  --bg-hover: #1e293b;
-  
-  --border-color: #1e293b;
-  --border-focus: #6366f1;
-  
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-white: #ffffff;
-
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-glow: rgba(99, 102, 241, 0.25);
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  
-  --accent: #14b8a6;
-  --accent-gradient: linear-gradient(135deg, #14b8a6 0%, #22d3ee 100%);
-  
-  --glass-bg: rgba(19, 27, 46, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}

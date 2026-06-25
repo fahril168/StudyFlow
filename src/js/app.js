@@ -11,7 +11,6 @@ const sidebarAvatar = document.getElementById('sidebar-avatar');
 const headerAvatar = document.getElementById('header-avatar');
 const sidebarUserName = document.getElementById('sidebar-user-name');
 const sidebarUserRole = document.getElementById('sidebar-user-role');
-const themeToggle = document.getElementById('theme-toggle');
 const sidebarToggle = document.getElementById('sidebar-toggle');
 const appSidebar = document.getElementById('app-sidebar');
 const logoutBtn = document.getElementById('logout-btn');
@@ -186,19 +185,6 @@ function checkAuthAndRoute() {
   updateReminders();
 }
 
-
-// Initialise Theme
-function initTheme() {
-  const savedTheme = stateManager.getTheme();
-  document.documentElement.setAttribute('data-theme', savedTheme);
-
-  themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    stateManager.setTheme(newTheme);
-  });
-}
 
 // Layout Listeners
 function initAppLayout() {
@@ -390,7 +376,6 @@ export function openModal(title, bodyHtml, onConfirm = null, confirmText = 'Simp
 // Initialize Router & Global Listeners
 window.addEventListener('hashchange', checkAuthAndRoute);
 window.addEventListener('DOMContentLoaded', () => {
-  initTheme();
   initAppLayout();
   checkAuthAndRoute();
 

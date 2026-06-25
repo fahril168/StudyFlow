@@ -21,12 +21,10 @@
 })();
 
 const STATE_USER_KEY = 'studyflow_user_session';
-const STATE_THEME_KEY = 'studyflow_theme_pref';
 
 class StateManager {
   constructor() {
     this.currentUser = null;
-    this.theme = 'light';
     this.selectedStudentId = null;
     this.loadSession();
   }
@@ -38,10 +36,6 @@ class StateManager {
         this.currentUser = JSON.parse(userSerialized);
       }
 
-      const themePref = localStorage.getItem(STATE_THEME_KEY);
-      if (themePref) {
-        this.theme = themePref;
-      }
     } catch (e) {
       console.error('Error loading session from localStorage:', e);
     }
@@ -56,20 +50,6 @@ class StateManager {
       }
     } catch (e) {
       console.error('Error saving user session to localStorage:', e);
-    }
-  }
-
-  // Theme configuration (synchronous)
-  getTheme() {
-    return this.theme;
-  }
-
-  setTheme(theme) {
-    this.theme = theme;
-    try {
-      localStorage.setItem(STATE_THEME_KEY, theme);
-    } catch (e) {
-      console.error('Error saving theme preference to localStorage:', e);
     }
   }
 
