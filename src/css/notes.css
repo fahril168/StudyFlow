@@ -1,0 +1,145 @@
+/* StudyFlow Notes Page CSS */
+
+.notes-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.notes-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.note-card-full {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.note-card-full:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.note-textarea-full {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  resize: none;
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+  color: #1e293b;
+  line-height: 1.5;
+  padding: 20px;
+}
+
+.note-textarea-full:focus {
+  outline: none;
+}
+
+.note-footer-full {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.note-colors-full {
+  display: flex;
+  gap: 6px;
+}
+
+.color-dot-full {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.color-dot-full:hover {
+  transform: scale(1.2);
+}
+
+.color-dot-full.active {
+  transform: scale(1.3);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.8), 0 0 4px rgba(0,0,0,0.3);
+}
+
+.delete-note-btn-full {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: all var(--transition-fast);
+}
+
+.delete-note-btn-full:hover {
+  opacity: 1;
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.delete-note-btn-full i {
+  width: 18px;
+  height: 18px;
+}
+
+.add-note-card {
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--border-color);
+  background: var(--bg-hover);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-muted);
+}
+
+.add-note-card:hover {
+  border-color: var(--primary);
+  background: var(--bg-card);
+  color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.add-note-card i {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 12px;
+}
+
+.add-note-card span {
+  font-weight: 600;
+  font-size: 1rem;
+}

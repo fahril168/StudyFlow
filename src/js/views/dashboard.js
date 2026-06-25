@@ -229,7 +229,10 @@ async function renderStudentDashboard(container, user) {
         <div class="panel-card">
           <div class="panel-header" style="margin-bottom: 15px;">
             <h3 class="panel-title"><i data-lucide="pin"></i> Catatan Kilat</h3>
-            <button class="clear-btn" id="add-note-btn" style="color: var(--primary); font-weight: 600; font-size: 0.85rem;"><i data-lucide="plus" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle;"></i>Tambah</button>
+            <div>
+              <button class="clear-btn" id="add-note-btn" style="color: var(--primary); font-weight: 600; font-size: 0.85rem; margin-right: 8px;"><i data-lucide="plus" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle;"></i>Tambah</button>
+              <button class="clear-btn" id="view-all-notes-btn" style="font-size: 0.85rem;">Lihat Semua</button>
+            </div>
           </div>
           
           <div class="sticky-notes-grid" id="sticky-notes-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; max-height: 300px; overflow-y: auto; padding: 4px;">
@@ -396,6 +399,12 @@ async function renderStudentDashboard(container, user) {
           renderNotesList(updatedNotes, notesWrapper);
         }
       };
+    }
+
+    // Bind View All Notes Button
+    const viewAllNotesBtn = container.querySelector('#view-all-notes-btn');
+    if (viewAllNotesBtn) {
+      viewAllNotesBtn.onclick = () => navigateTo('#notes');
     }
   }
 }

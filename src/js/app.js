@@ -19,6 +19,7 @@ const notificationMenu = document.getElementById('notification-menu');
 const notificationBadge = document.getElementById('notification-badge');
 const notificationList = document.getElementById('notification-list');
 const clearNotifications = document.getElementById('clear-notifications');
+const studentDependentRoutes = ['#tasks', '#calendar', '#stats', '#notifications', '#notes', '#history'];
 
 // View mapping definitions
 const viewRoutes = {
@@ -60,6 +61,30 @@ const viewRoutes = {
     render: async (container) => {
       const { renderProfile } = await import('./views/profile.js');
       await renderProfile(container, navigateTo);
+    }
+  },
+  '#notifications': {
+    title: 'Notifikasi & Pengingat',
+    subtitle: 'Lihat semua pengingat tugas dan batas waktu yang mendekat.',
+    render: async (container) => {
+      const { renderNotifications } = await import('./views/notifications.js');
+      await renderNotifications(container, navigateTo);
+    }
+  },
+  '#notes': {
+    title: 'Buku Catatan',
+    subtitle: 'Kelola semua catatan kilat Anda di satu tempat.',
+    render: async (container) => {
+      const { renderNotes } = await import('./views/notes.js');
+      await renderNotes(container);
+    }
+  },
+  '#history': {
+    title: 'Laporan & Riwayat Tugas',
+    subtitle: 'Rekapitulasi seluruh tugas yang pernah Anda kerjakan.',
+    render: async (container) => {
+      const { renderHistory } = await import('./views/history.js');
+      await renderHistory(container);
     }
   }
 };
@@ -141,7 +166,7 @@ function checkAuthAndRoute() {
 
   // If admin and no student is selected, restrict routing to dashboard and profile
   if (user.role === 'admin' && !stateManager.getSelectedStudentId()) {
-    if (hash === '#tasks' || hash === '#calendar' || hash === '#stats') {
+    if (hash === '#tasks' || hash === '#calendar' || hash === '#stats' || hash === '#notifications') {
       hash = '#dashboard';
       window.location.hash = '#dashboard';
     }
@@ -383,4 +408,12 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('header-profile-trigger').addEventListener('click', () => {
     navigateTo('#profile');
   });
+
+  // View all notifications link in dropdown closes the dropdown
+  const viewAllBtn = document.getElementById('view-all-notifications');
+  if (viewAllBtn) {
+    viewAllBtn.addEventListener('click', () => {
+      document.getElementById('notification-menu').classList.add('hidden');
+    });
+  }
 });

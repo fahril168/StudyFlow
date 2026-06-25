@@ -1,0 +1,184 @@
+/* StudyFlow Notifications Page CSS - Premium Design */
+
+.notifications-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+  padding-bottom: var(--spacing-xl);
+}
+
+.notifications-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notifications-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.notifications-empty-state i {
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--spacing-lg);
+  color: var(--border-color);
+}
+
+.notifications-empty-state h3 {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.notifications-empty-state p {
+  font-size: 0.95rem;
+  max-width: 350px;
+  line-height: 1.6;
+}
+
+.notification-page-item {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.notification-page-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: transparent;
+  transition: background-color var(--transition-fast);
+}
+
+.notification-page-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-focus);
+}
+
+.notification-page-item:hover::before {
+  background-color: var(--primary);
+}
+
+.notification-page-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  background-color: var(--bg-hover);
+}
+
+.notification-page-icon.warning {
+  background-color: var(--color-priority-medium-bg);
+  color: var(--color-priority-medium);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.notification-page-item:hover .notification-page-icon.warning {
+  box-shadow: 0 0 0 4px var(--color-priority-medium-bg);
+}
+
+.notification-page-icon.danger {
+  background-color: var(--color-priority-high-bg);
+  color: var(--color-priority-high);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.notification-page-item:hover .notification-page-icon.danger {
+  box-shadow: 0 0 0 4px var(--color-priority-high-bg);
+}
+
+.notification-page-icon i {
+  width: 24px;
+  height: 24px;
+}
+
+.notification-page-content {
+  flex-grow: 1;
+}
+
+.notification-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.notification-page-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.notification-page-time {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: var(--spacing-md);
+  background: var(--bg-hover);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.notification-page-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.notification-action {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--bg-input);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.notification-action i {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--transition-fast);
+}
+
+.notification-page-item:hover .notification-action {
+  background-color: var(--primary-glow);
+  color: var(--primary);
+}
+
+.notification-page-item:hover .notification-action i {
+  transform: translateX(4px);
+}

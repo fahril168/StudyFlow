@@ -25,6 +25,9 @@
   <link rel="stylesheet" href="src/css/calendar.css">
   <link rel="stylesheet" href="src/css/stats.css">
   <link rel="stylesheet" href="src/css/profile.css">
+  <link rel="stylesheet" href="src/css/notifications.css">
+  <link rel="stylesheet" href="src/css/notes.css">
+  <link rel="stylesheet" href="src/css/history.css">
 
   <!-- Lucide Icons for premium modern iconography -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -96,6 +99,24 @@
               <span>Statistik</span>
             </a>
           </li>
+          <li class="student-dependent-menu">
+            <a href="#notifications" class="nav-link" id="nav-notifications">
+              <i data-lucide="bell-ring"></i>
+              <span>Notifikasi</span>
+            </a>
+          </li>
+          <li class="student-dependent-menu">
+            <a href="#notes" class="nav-link" id="nav-notes">
+              <i data-lucide="book-open"></i>
+              <span>Buku Catatan</span>
+            </a>
+          </li>
+          <li class="student-dependent-menu">
+            <a href="#history" class="nav-link" id="nav-history">
+              <i data-lucide="archive"></i>
+              <span>Laporan</span>
+            </a>
+          </li>
           <li>
             <a href="#profile" class="nav-link" id="nav-profile">
               <i data-lucide="user"></i>
@@ -137,7 +158,10 @@
             <div id="notification-menu" class="notification-menu hidden">
               <div class="notification-header">
                 <h3>Notifikasi & Reminder</h3>
-                <button id="clear-notifications" class="clear-btn">Bersihkan</button>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                  <a href="#notifications" class="clear-btn" style="text-decoration: none;" id="view-all-notifications">Lihat Semua</a>
+                  <button id="clear-notifications" class="clear-btn">Bersihkan</button>
+                </div>
               </div>
               <div id="notification-list" class="notification-list">
                 <!-- Notifications injected here -->
