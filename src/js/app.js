@@ -110,7 +110,7 @@ function checkAuthAndRoute() {
 
   // Update user info in layout
   sidebarUserName.textContent = user.name;
-  sidebarUserRole.textContent = user.role === 'admin' ? 'Administrator' : `Mahasiswa - ${user.nim}`;
+  sidebarUserRole.textContent = user.role === 'admin' ? 'Administrator' : 'Mahasiswa';
   sidebarAvatar.src = user.avatar;
   headerAvatar.src = user.avatar;
 
@@ -159,6 +159,32 @@ function checkAuthAndRoute() {
         item.classList.remove('hidden');
       });
     }
+  }
+
+  // Init Semester Filter
+  const filterSelect = document.getElementById('global-semester-filter');
+  if (filterSelect) {
+    const currentSem = user.current_semester || 1;
+    let optionsHtml = '<option value="">Semua Semester</option>';
+    const maxSem = Math.max(currentSem, 14);
+    for (let i = 1; i <= maxSem; i++) {
+      optionsHtml += `<option value="${i}">Semester ${i}</option>`;
+    }
+    filterSelect.innerHTML = optionsHtml;
+    filterSelect.innerHTML = optionsHtml;
+
+    // Remove old listeners by cloning (if re-initializing)
+    const newFilterSelect = filterSelect.cloneNode(true);
+    filterSelect.parentNode.replaceChild(newFilterSelect, filterSelect);
+    
+    // Set the value AFTER cloning to preserve it
+    newFilterSelect.value = stateManager.currentFilterSemester !== null ? stateManager.currentFilterSemester : "";
+    
+    newFilterSelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      stateManager.currentFilterSemester = val ? parseInt(val) : null;
+      checkAuthAndRoute();
+    });
   }
 
   // Handle routing based on hash

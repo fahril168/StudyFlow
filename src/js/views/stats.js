@@ -23,7 +23,7 @@ export async function renderStats(container) {
   }
 
   // Fetch all categories once
-  localCategories = await stateManager.getCategories();
+  localCategories = await stateManager.getCategories(false);
 
   if (user.role === 'admin') {
     await renderAdminDashboard(container, user);

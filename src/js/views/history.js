@@ -2,7 +2,7 @@ import { stateManager } from '../state.js';
 
 export async function renderHistory(container) {
   const tasks = await stateManager.getTasks();
-  const categories = await stateManager.getCategories();
+  const categories = await stateManager.getCategories(false);
   
   // Sort tasks: completed ones first (most recent), then others by due date
   tasks.sort((a, b) => {
@@ -29,7 +29,7 @@ export async function renderHistory(container) {
           </select>
           
           <select id="history-category-filter" class="history-filter-select">
-            <option value="all">Semua Mata Kuliah</option>
+            <option value="all">Semua Kategori</option>
             ${categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
           </select>
         </div>
@@ -52,7 +52,7 @@ export async function renderHistory(container) {
           <thead>
             <tr>
               <th>Detail Tugas</th>
-              <th>Mata Kuliah</th>
+              <th>Kategori</th>
               <th>Prioritas</th>
               <th>Status</th>
               <th>Tenggat Waktu</th>

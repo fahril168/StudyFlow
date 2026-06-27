@@ -26,6 +26,7 @@ class StateManager {
   constructor() {
     this.currentUser = null;
     this.selectedStudentId = null;
+    this.currentFilterSemester = null;
     this.loadSession();
   }
 
@@ -65,6 +66,7 @@ class StateManager {
 
       if (data.success) {
         this.currentUser = data.user;
+        this.currentFilterSemester = this.currentUser.current_semester || 1;
         this.saveSession();
         return { success: true, user: this.currentUser };
       } else {
@@ -154,7 +156,8 @@ class StateManager {
         userId = this.selectedStudentId;
         role = 'student';
       }
-      const res = await fetch(`/api/tasks?userId=${userId}&role=${role}`);
+      const semesterParam = this.currentFilterSemester ? `&semester=${this.currentFilterSemester}` : '';
+      const res = await fetch(`/api/tasks?userId=${userId}&role=${role}${semesterParam}`);
       if (!res.ok) throw new Error('Failed to fetch tasks');
       const data = await res.json();
       return data;
@@ -171,10 +174,11 @@ class StateManager {
       if (this.currentUser.role === 'admin' && this.selectedStudentId) {
         studentId = this.selectedStudentId;
       }
+      const semester = this.currentFilterSemester || (this.currentUser.current_semester || 1);
       const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId, ...taskData })
+        body: JSON.stringify({ studentId, semester, ...taskData })
       });
       if (!res.ok) throw new Error('Failed to create task');
       const data = await res.json();
@@ -216,9 +220,13 @@ class StateManager {
   }
 
   // Categories API (Asynchronous API Calls)
-  async getCategories() {
+  async getCategories(filterBySemester = true) {
     try {
-      const res = await fetch('/api/categories');
+      let url = '/api/categories';
+      if (filterBySemester && this.currentFilterSemester) {
+        url += `?semester=${this.currentFilterSemester}`;
+      }
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch categories');
       const data = await res.json();
       return data;
@@ -228,17 +236,38 @@ class StateManager {
     }
   }
 
-  async addCategory(name, color) {
+  async addCategory(name, color, isGlobal = false, semester = null) {
     try {
+      if (semester === null) {
+        semester = this.currentUser ? (this.currentUser.current_semester || 1) : 1;
+      }
       const res = await fetch('/api/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, color })
+        body: JSON.stringify({ name, color, semester, is_global: isGlobal })
       });
       const data = await res.json();
       return data;
     } catch (error) {
       console.error('Add category error:', error);
+      return { success: false, message: 'Gagal menghubungi server database.' };
+    }
+  }
+
+  async updateCategory(categoryId, name, color, isGlobal = false, semester = null) {
+    try {
+      if (semester === null) {
+        semester = this.currentUser ? (this.currentUser.current_semester || 1) : 1;
+      }
+      const res = await fetch(`/api/categories/${categoryId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, color, semester, is_global: isGlobal })
+      });
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('Update category error:', error);
       return { success: false, message: 'Gagal menghubungi server database.' };
     }
   }

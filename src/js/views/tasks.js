@@ -8,6 +8,7 @@ let viewMode = 'kanban'; // 'kanban' or 'list'
 let searchQuery = '';
 let filterCategory = '';
 let filterPriority = '';
+let selectedCategories = null;
 
 export async function renderTasks(container) {
   const user = stateManager.getCurrentUser();
@@ -18,7 +19,19 @@ export async function renderTasks(container) {
 }
 
 async function renderLayout(container, user) {
+  const allCategories = await stateManager.getCategories(false);
   const categories = await stateManager.getCategories();
+  
+  // Initialize selectedCategories with all categories if null
+  if (selectedCategories === null) {
+    selectedCategories = allCategories.map(c => c.id);
+  }
+  
+  const courseCats = allCategories.filter(c => !c.is_global && c.is_global !== '1' && c.is_global !== true);
+  const globalCats = allCategories.filter(c => c.is_global == 1 || c.is_global === '1' || c.is_global === true);
+  
+  const allCoursesSelected = courseCats.length > 0 && courseCats.every(c => selectedCategories.includes(c.id));
+  const allGlobalsSelected = globalCats.length > 0 && globalCats.every(c => selectedCategories.includes(c.id));
 
   // Create main structure
   container.innerHTML = `
@@ -29,11 +42,16 @@ async function renderLayout(container, user) {
           <i data-lucide="search"></i>
           <input type="text" id="task-search" class="search-control" placeholder="Cari nama tugas..." value="${searchQuery}">
         </div>
-        
-        <select id="filter-category" class="filter-select">
-          <option value="">Semua Kategori</option>
-          ${categories.map(c => `<option value="${c.id}" ${filterCategory === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
-        </select>
+
+        <div class="multi-select-wrapper" id="category-multi-select-wrapper">
+          <button type="button" class="multi-select-btn" id="category-multi-select-btn">
+            <span id="category-multi-select-text">Semua Kategori</span>
+            <i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+          </button>
+          <div class="multi-select-dropdown" id="category-multi-select-dropdown">
+            <!-- Rendered by JS below -->
+          </div>
+        </div>
 
         <select id="filter-priority" class="filter-select">
           <option value="">Semua Prioritas</option>
@@ -81,11 +99,130 @@ async function renderLayout(container, user) {
     await renderViewContent();
   });
 
-  const categoryFilter = container.querySelector('#filter-category');
-  categoryFilter.addEventListener('change', async (e) => {
-    filterCategory = e.target.value;
-    await renderViewContent();
-  });
+  // Multi-select dropdown logic
+  const msBtn = container.querySelector('#category-multi-select-btn');
+  const msDropdown = container.querySelector('#category-multi-select-dropdown');
+  const msText = container.querySelector('#category-multi-select-text');
+
+  if (msBtn && msDropdown) {
+    // Render the dropdown content dynamically
+    msDropdown.innerHTML = `
+      <div class="ms-columns">
+        <div class="ms-group">
+          <label class="ms-group-header">
+            <input type="checkbox" id="ms-group-course" ${allCoursesSelected ? 'checked' : ''}>
+            <span>Mata Kuliah</span>
+          </label>
+          <div class="ms-group-items" id="ms-items-course" style="display: ${allCoursesSelected ? 'flex' : 'none'};">
+            ${courseCats.map(c => `
+              <label class="ms-item">
+                <input type="checkbox" class="ms-child-course" value="${c.id}" ${selectedCategories.includes(c.id) ? 'checked' : ''}>
+                <span>${c.name}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+        <div class="ms-divider-vertical"></div>
+        <div class="ms-group">
+          <label class="ms-group-header">
+            <input type="checkbox" id="ms-group-global" ${allGlobalsSelected ? 'checked' : ''}>
+            <span>Kategori Umum</span>
+          </label>
+          <div class="ms-group-items" id="ms-items-global" style="display: ${allGlobalsSelected ? 'flex' : 'none'};">
+            ${globalCats.map(c => `
+              <label class="ms-item">
+                <input type="checkbox" class="ms-child-global" value="${c.id}" ${selectedCategories.includes(c.id) ? 'checked' : ''}>
+                <span>${c.name}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Update button text based on selection
+    const updateMsText = () => {
+      if (selectedCategories.length === allCategories.length) {
+        msText.textContent = 'Semua Kategori';
+      } else if (selectedCategories.length === 0) {
+        msText.textContent = 'Tidak ada kategori';
+      } else {
+        msText.textContent = `${selectedCategories.length} Kategori Dipilih`;
+      }
+    };
+    updateMsText();
+
+    // Toggle dropdown
+    msBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      msDropdown.classList.toggle('show');
+      msBtn.classList.toggle('active');
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!msBtn.contains(e.target) && !msDropdown.contains(e.target)) {
+        msDropdown.classList.remove('show');
+        msBtn.classList.remove('active');
+      }
+    });
+
+    // Handle group checkbox changes
+    const groupCourseCb = msDropdown.querySelector('#ms-group-course');
+    const childCourseCbs = msDropdown.querySelectorAll('.ms-child-course');
+    const itemsCourseDiv = msDropdown.querySelector('#ms-items-course');
+    
+    groupCourseCb.addEventListener('change', async (e) => {
+      const isChecked = e.target.checked;
+      itemsCourseDiv.style.display = isChecked ? 'flex' : 'none';
+      childCourseCbs.forEach(cb => {
+        cb.checked = isChecked;
+        if (isChecked && !selectedCategories.includes(cb.value)) selectedCategories.push(cb.value);
+        if (!isChecked && selectedCategories.includes(cb.value)) selectedCategories = selectedCategories.filter(id => id !== cb.value);
+      });
+      updateMsText();
+      await renderViewContent();
+    });
+
+    const groupGlobalCb = msDropdown.querySelector('#ms-group-global');
+    const childGlobalCbs = msDropdown.querySelectorAll('.ms-child-global');
+    const itemsGlobalDiv = msDropdown.querySelector('#ms-items-global');
+
+    groupGlobalCb.addEventListener('change', async (e) => {
+      const isChecked = e.target.checked;
+      itemsGlobalDiv.style.display = isChecked ? 'flex' : 'none';
+      childGlobalCbs.forEach(cb => {
+        cb.checked = isChecked;
+        if (isChecked && !selectedCategories.includes(cb.value)) selectedCategories.push(cb.value);
+        if (!isChecked && selectedCategories.includes(cb.value)) selectedCategories = selectedCategories.filter(id => id !== cb.value);
+      });
+      updateMsText();
+      await renderViewContent();
+    });
+
+    // Handle individual checkbox changes
+    const handleChildChange = async (groupCb, childCbs) => {
+      const allChecked = Array.from(childCbs).every(cb => cb.checked);
+      groupCb.checked = allChecked;
+      
+      // Sync selectedCategories array
+      selectedCategories = [];
+      msDropdown.querySelectorAll('.ms-item input[type="checkbox"]').forEach(cb => {
+        if (cb.checked) selectedCategories.push(cb.value);
+      });
+      
+      updateMsText();
+      await renderViewContent();
+    };
+
+    childCourseCbs.forEach(cb => {
+      cb.addEventListener('change', () => handleChildChange(groupCourseCb, childCourseCbs));
+    });
+
+    childGlobalCbs.forEach(cb => {
+      cb.addEventListener('change', () => handleChildChange(groupGlobalCb, childGlobalCbs));
+    });
+  }
 
   const priorityFilter = container.querySelector('#filter-priority');
   priorityFilter.addEventListener('change', async (e) => {
@@ -127,8 +264,9 @@ async function getFilteredTasks() {
                               (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase())));
   }
 
-  if (filterCategory) {
-    tasks = tasks.filter(t => t.categoryId === filterCategory);
+  // Filter by selectedCategories
+  if (selectedCategories !== null) {
+    tasks = tasks.filter(t => selectedCategories.includes(t.categoryId));
   }
 
   if (filterPriority) {
@@ -152,7 +290,7 @@ async function renderViewContent() {
   if (!contentArea) return;
 
   const tasks = await getFilteredTasks();
-  const categories = await stateManager.getCategories();
+  const categories = await stateManager.getCategories(false);
 
   if (viewMode === 'kanban') {
     renderKanban(contentArea, tasks, categories);
@@ -456,7 +594,7 @@ function bindCardClickListeners() {
 
 // Modal Form Creator for Add/Edit
 async function openTaskFormModal(taskId = null, pageContainer) {
-  const categories = await stateManager.getCategories();
+  let categories = await stateManager.getCategories();
   const isEdit = !!taskId;
   const user = stateManager.getCurrentUser();
   const isAdmin = user.role === 'admin';
@@ -478,6 +616,15 @@ async function openTaskFormModal(taskId = null, pageContainer) {
     if (!foundTask) return;
     task = JSON.parse(JSON.stringify(foundTask)); // Deep copy
     if (!task.subtasks) task.subtasks = [];
+    if (!task.attachments) task.attachments = [];
+
+    // Ensure the task's current category is present in the dropdown options
+    // even if it belongs to a different semester.
+    const allCats = await stateManager.getCategories(false);
+    const taskCat = allCats.find(c => c.id === task.categoryId);
+    if (taskCat && !categories.some(c => c.id === taskCat.id)) {
+      categories.unshift(taskCat);
+    }
   }
 
   const titleModal = isEdit ? (isAdmin ? 'Rincian Tugas Mahasiswa' : 'Edit Tugas Kuliah') : 'Tambah Tugas Baru';
@@ -491,7 +638,7 @@ async function openTaskFormModal(taskId = null, pageContainer) {
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" for="task-category-input">Kategori Mata Kuliah</label>
+          <label class="form-label" for="task-category-input">Kategori Tugas</label>
           <select id="task-category-input" class="form-input-control" ${isAdmin ? 'disabled' : ''}>
             ${categories.map(c => `<option value="${c.id}" ${task.categoryId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
           </select>
@@ -817,24 +964,43 @@ async function openManageCategoriesModal(pageContainer) {
               <span style="width: 14px; height: 14px; border-radius: 50%; background-color: ${c.color};"></span>
               <strong style="font-size: 0.9rem;">${c.name}</strong>
             </div>
-            <button class="list-btn delete delete-cat-btn" data-cat-id="${c.id}" title="Hapus Kategori">
-              <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
-            </button>
+            <div style="display: flex; gap: 4px;">
+              <button class="list-btn edit edit-cat-btn" data-cat='${JSON.stringify(c).replace(/'/g, "&apos;")}' title="Edit Kategori">
+                <i data-lucide="edit-2" style="width: 16px; height: 16px;"></i>
+              </button>
+              <button class="list-btn delete delete-cat-btn" data-cat-id="${c.id}" title="Hapus Kategori">
+                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
           </div>
         `).join('')}
       </div>
 
       <form id="add-category-form" style="border-top: 1px solid var(--border-color); padding-top: 16px;">
-        <h4 style="margin-bottom: 12px; font-size: 0.95rem;">Tambah Kategori Mata Kuliah</h4>
+        <h4 id="cat-form-title" style="margin-bottom: 12px; font-size: 0.95rem;">Tambah Kategori</h4>
+        <input type="hidden" id="new-cat-id">
         <div class="form-group">
-          <label class="form-label">Nama Mata Kuliah</label>
+          <label class="form-label">Nama Kategori</label>
           <input type="text" id="new-cat-name" class="form-input-control" placeholder="RPL, Pemrograman Web, AI, dsb." required>
         </div>
-        <div class="form-group">
-          <label class="form-label">Warna Tag Kategori</label>
-          <input type="color" id="new-cat-color" class="form-input-control" style="height: 44px; padding: 4px;" value="#4f46e5">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Warna Tag Kategori</label>
+            <input type="color" id="new-cat-color" class="form-input-control" style="height: 44px; padding: 4px;" value="#4f46e5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Semester</label>
+            <input type="number" id="new-cat-semester" class="form-input-control" value="${stateManager.currentUser ? (stateManager.currentUser.current_semester || 1) : 1}" min="1" max="14">
+          </div>
         </div>
-        <button type="submit" class="admin-submit-btn" style="background-color: var(--accent);">Simpan Kategori</button>
+        <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+          <input type="checkbox" id="new-cat-is-global" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary);">
+          <label for="new-cat-is-global" style="font-size: 0.9rem; margin: 0; cursor: pointer;">Kategori Umum (Bukan Mata Kuliah)</label>
+        </div>
+        <div class="modal-footer" style="margin-top: 16px;">
+          <button type="button" id="cat-cancel-btn" class="modal-btn btn-cancel hidden">Batal Edit</button>
+          <button type="submit" id="cat-submit-btn" class="add-task-btn">Simpan Kategori</button>
+        </div>
       </form>
     </div>
   `;
@@ -855,17 +1021,22 @@ async function openManageCategoriesModal(pageContainer) {
             <span style="width: 14px; height: 14px; border-radius: 50%; background-color: ${c.color};"></span>
             <strong style="font-size: 0.9rem;">${c.name}</strong>
           </div>
-          <button class="list-btn delete delete-cat-btn" data-cat-id="${c.id}" title="Hapus Kategori">
-            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
-          </button>
+          <div style="display: flex; gap: 4px;">
+            <button class="list-btn edit edit-cat-btn" data-cat='${JSON.stringify(c).replace(/'/g, "&apos;")}' title="Edit Kategori">
+              <i data-lucide="edit-2" style="width: 16px; height: 16px;"></i>
+            </button>
+            <button class="list-btn delete delete-cat-btn" data-cat-id="${c.id}" title="Hapus Kategori">
+              <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+            </button>
+          </div>
         </div>
       `).join('');
       lucide.createIcons();
-      bindDeleteCat();
+      bindCatEvents();
     }
   };
 
-  const bindDeleteCat = () => {
+  const bindCatEvents = () => {
     document.querySelectorAll('.delete-cat-btn').forEach(btn => {
       btn.onclick = async () => {
         const catId = btn.getAttribute('data-cat-id');
@@ -873,35 +1044,68 @@ async function openManageCategoriesModal(pageContainer) {
           await stateManager.deleteCategory(catId);
           showToast('Kategori berhasil dihapus.', 'success');
           
-          // Refresh list inside modal
           await refreshModalList();
-          
-          // Refresh background view
           await renderLayout(pageContainer, stateManager.getCurrentUser());
           await renderViewContent();
         }
       };
     });
+
+    document.querySelectorAll('.edit-cat-btn').forEach(btn => {
+      btn.onclick = () => {
+        const cat = JSON.parse(btn.getAttribute('data-cat'));
+        document.getElementById('cat-form-title').textContent = 'Edit Kategori';
+        document.getElementById('new-cat-id').value = cat.id;
+        document.getElementById('new-cat-name').value = cat.name;
+        document.getElementById('new-cat-color').value = cat.color;
+        document.getElementById('new-cat-semester').value = cat.semester;
+        document.getElementById('new-cat-is-global').checked = cat.is_global == 1;
+        
+        document.getElementById('cat-submit-btn').textContent = 'Update Kategori';
+        document.getElementById('cat-cancel-btn').classList.remove('hidden');
+      };
+    });
   };
 
-  bindDeleteCat();
+  bindCatEvents();
+
+  const resetForm = () => {
+    document.getElementById('cat-form-title').textContent = 'Tambah Kategori';
+    document.getElementById('new-cat-id').value = '';
+    document.getElementById('new-cat-name').value = '';
+    document.getElementById('new-cat-color').value = '#4f46e5';
+    document.getElementById('new-cat-semester').value = stateManager.currentUser ? (stateManager.currentUser.current_semester || 1) : 1;
+    document.getElementById('new-cat-is-global').checked = false;
+    
+    document.getElementById('cat-submit-btn').textContent = 'Simpan Kategori';
+    document.getElementById('cat-cancel-btn').classList.add('hidden');
+  };
+
+  document.getElementById('cat-cancel-btn').onclick = resetForm;
 
   // Add Category form submit
+  // Add/Edit Category form submit
   const addCatForm = document.getElementById('add-category-form');
   addCatForm.onsubmit = async (e) => {
     e.preventDefault();
+    const id = document.getElementById('new-cat-id').value;
     const name = document.getElementById('new-cat-name').value.trim();
     const color = document.getElementById('new-cat-color').value;
+    const semester = parseInt(document.getElementById('new-cat-semester').value) || 1;
+    const isGlobal = document.getElementById('new-cat-is-global').checked;
 
-    const res = await stateManager.addCategory(name, color);
+    let res;
+    if (id) {
+      res = await stateManager.updateCategory(id, name, color, isGlobal, semester);
+    } else {
+      res = await stateManager.addCategory(name, color, isGlobal, semester);
+    }
+
     if (res.success) {
-      showToast(`Kategori "${name}" berhasil ditambahkan!`, 'success');
-      document.getElementById('new-cat-name').value = '';
+      showToast(`Kategori "${name}" berhasil ${id ? 'diperbarui' : 'ditambahkan'}!`, 'success');
+      resetForm();
       
-      // Refresh list inside modal
       await refreshModalList();
-      
-      // Refresh background view
       await renderLayout(pageContainer, stateManager.getCurrentUser());
       await renderViewContent();
     } else {

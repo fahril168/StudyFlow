@@ -88,9 +88,16 @@ export async function renderProfile(container, navigateTo) {
               </div>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="profile-email-input">Alamat Email</label>
-              <input type="email" id="profile-email-input" class="form-input-control" value="${user.email}" required>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="profile-email-input">Alamat Email</label>
+                <input type="email" id="profile-email-input" class="form-input-control" value="${user.email}" required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" for="profile-semester-input">Semester Saat Ini</label>
+                <input type="number" id="profile-semester-input" class="form-input-control" min="1" max="14" value="${user.current_semester || 1}" required>
+              </div>
             </div>
 
             <div class="chart-card-header" style="margin-top: 32px; margin-bottom: 20px;">
@@ -146,6 +153,7 @@ export async function renderProfile(container, navigateTo) {
       const nimVal = container.querySelector('#profile-nim-input').value.trim();
       const prodiVal = container.querySelector('#profile-prodi-input').value.trim();
       const emailVal = container.querySelector('#profile-email-input').value.trim();
+      const semesterVal = parseInt(container.querySelector('#profile-semester-input').value) || 1;
       const newPasswordVal = container.querySelector('#profile-new-password-input').value;
       const confirmPasswordVal = container.querySelector('#profile-confirm-password-input').value;
 
@@ -170,7 +178,8 @@ export async function renderProfile(container, navigateTo) {
         nim: nimVal,
         prodi: prodiVal,
         email: emailVal,
-        avatar: selectedAvatar
+        avatar: selectedAvatar,
+        current_semester: semesterVal
       };
 
       if (newPasswordVal) {
@@ -188,11 +197,11 @@ export async function renderProfile(container, navigateTo) {
         document.getElementById('sidebar-avatar').src = res.user.avatar;
         document.getElementById('header-avatar').src = res.user.avatar;
         if (res.user.role !== 'admin') {
-          document.getElementById('sidebar-user-role').textContent = `Mahasiswa - ${res.user.nim}`;
+          document.getElementById('sidebar-user-role').textContent = 'Mahasiswa';
         }
 
-        // Redraw profile page to update mini stats name preview
-        await renderProfile(container, navigateTo);
+        // Reload to update global semester filter options
+        setTimeout(() => window.location.reload(), 800);
       } else {
         showToast(res.message, 'error');
       }

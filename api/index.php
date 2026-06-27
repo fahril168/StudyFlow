@@ -50,13 +50,16 @@ try {
         nim VARCHAR(50) NOT NULL,
         prodi VARCHAR(100) NOT NULL,
         role VARCHAR(20) NOT NULL,
-        avatar TEXT
+        avatar TEXT,
+        current_semester INT DEFAULT 1
     )");
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS categories (
         id VARCHAR(50) PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
-        color VARCHAR(20) NOT NULL
+        color VARCHAR(20) NOT NULL,
+        semester INT DEFAULT 1,
+        is_global TINYINT(1) DEFAULT 0
     )");
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS tasks (
@@ -70,6 +73,7 @@ try {
         studentId VARCHAR(50),
         createdAt VARCHAR(50),
         completedAt VARCHAR(50),
+        semester INT DEFAULT 1,
         FOREIGN KEY (categoryId) REFERENCES categories(id) ON DELETE SET NULL,
         FOREIGN KEY (studentId) REFERENCES users(id) ON DELETE CASCADE
     )");
@@ -83,7 +87,11 @@ try {
         FOREIGN KEY (studentId) REFERENCES users(id) ON DELETE CASCADE
     )");
     
-
+    // Auto-migrate existing tables (ignore errors if columns already exist)
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN current_semester INT DEFAULT 1"); } catch(Exception $e) {}
+    try { $pdo->exec("ALTER TABLE categories ADD COLUMN semester INT DEFAULT 1"); } catch(Exception $e) {}
+    try { $pdo->exec("ALTER TABLE categories ADD COLUMN is_global TINYINT(1) DEFAULT 0"); } catch(Exception $e) {}
+    try { $pdo->exec("ALTER TABLE tasks ADD COLUMN semester INT DEFAULT 1"); } catch(Exception $e) {}
 
     // --- NEW TABLES ---
     $pdo->exec("CREATE TABLE IF NOT EXISTS subtasks (
@@ -260,13 +268,14 @@ elseif ($path === '/profile' && $request_method === 'PUT') {
     $email = $body['email'] ?? '';
     $avatar = $body['avatar'] ?? '';
     $password = $body['password'] ?? '';
+    $currentSemester = $body['current_semester'] ?? 1;
     
     if ($password !== '') {
-        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ?, password = ? WHERE id = ?");
-        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $password, $userId]);
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ?, password = ?, current_semester = ? WHERE id = ?");
+        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $password, $currentSemester, $userId]);
     } else {
-        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ? WHERE id = ?");
-        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $userId]);
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ?, current_semester = ? WHERE id = ?");
+        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $currentSemester, $userId]);
     }
     
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -282,7 +291,13 @@ elseif ($path === '/students' && $request_method === 'GET') {
 }
 
 elseif ($path === '/categories' && $request_method === 'GET') {
-    $stmt = $pdo->query("SELECT * FROM categories");
+    $semester = isset($_GET['semester']) ? (int)$_GET['semester'] : null;
+    if ($semester !== null) {
+        $stmt = $pdo->prepare("SELECT * FROM categories WHERE is_global = 1 OR semester = ?");
+        $stmt->execute([$semester]);
+    } else {
+        $stmt = $pdo->query("SELECT * FROM categories");
+    }
     sendJson($stmt->fetchAll());
 }
 
@@ -290,18 +305,22 @@ elseif ($path === '/categories' && $request_method === 'POST') {
     $body = getJsonBody();
     $name = $body['name'] ?? '';
     $color = $body['color'] ?? '';
+    $semester = $body['semester'] ?? 1;
+    $is_global = isset($body['is_global']) && $body['is_global'] ? 1 : 0;
     
     $stmt = $pdo->prepare("SELECT id FROM categories WHERE LOWER(name) = ?");
     $stmt->execute([strtolower($name)]);
     if ($stmt->fetch()) {
-        sendJson(['success' => false, 'message' => 'Kategori sudah ada.'], 400);
+        sendJson(['success' => false, 'message' => 'Kategori sudah ada.']);
     }
     
     $id = 'cat-' . round(microtime(true) * 1000);
-    $stmt = $pdo->prepare("INSERT INTO categories (id, name, color) VALUES (?, ?, ?)");
-    $stmt->execute([$id, $name, $color]);
+    $stmt = $pdo->prepare("INSERT INTO categories (id, name, color, semester, is_global) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([$id, $name, $color, $semester, $is_global]);
     
-    sendJson(['success' => true, 'category' => ['id' => $id, 'name' => $name, 'color' => $color]]);
+    sendJson(['success' => true, 'category' => [
+        'id' => $id, 'name' => $name, 'color' => $color, 'semester' => $semester, 'is_global' => $is_global
+    ]]);
 }
 
 elseif (preg_match('#^/categories/([^/]+)$#', $path, $matches) && $request_method === 'DELETE') {
@@ -309,6 +328,35 @@ elseif (preg_match('#^/categories/([^/]+)$#', $path, $matches) && $request_metho
     $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
     $stmt->execute([$catId]);
     sendJson(['success' => true]);
+}
+
+elseif (preg_match('#^/categories/([^/]+)$#', $path, $matches) && $request_method === 'PUT') {
+    $catId = $matches[1];
+    $body = getJsonBody();
+    $name = $body['name'] ?? '';
+    $color = $body['color'] ?? '';
+    $semester = $body['semester'] ?? 1;
+    $is_global = isset($body['is_global']) && $body['is_global'] ? 1 : 0;
+    
+    // Check if name exists but belongs to another category
+    $stmt = $pdo->prepare("SELECT id FROM categories WHERE LOWER(name) = ? AND id != ?");
+    $stmt->execute([strtolower($name), $catId]);
+    if ($stmt->fetch()) {
+        sendJson(['success' => false, 'message' => 'Nama kategori sudah digunakan.']);
+    }
+    
+    $stmt = $pdo->prepare("UPDATE categories SET name = ?, color = ?, semester = ?, is_global = ? WHERE id = ?");
+    $stmt->execute([$name, $color, $semester, $is_global, $catId]);
+    
+    // Auto-migrate tasks to match the category's semester if it's a specific course (not global)
+    if (!$is_global) {
+        $stmt2 = $pdo->prepare("UPDATE tasks SET semester = ? WHERE categoryId = ?");
+        $stmt2->execute([$semester, $catId]);
+    }
+    
+    sendJson(['success' => true, 'category' => [
+        'id' => $catId, 'name' => $name, 'color' => $color, 'semester' => $semester, 'is_global' => $is_global
+    ]]);
 }
 
 elseif ($path === '/notes' && $request_method === 'GET') {
@@ -366,13 +414,24 @@ elseif (preg_match('#^/notes/([^/]+)$#', $path, $matches) && $request_method ===
 elseif ($path === '/tasks' && $request_method === 'GET') {
     $userId = $_GET['userId'] ?? '';
     $role = $_GET['role'] ?? 'student';
+    $semester = isset($_GET['semester']) ? (int)$_GET['semester'] : null;
     
     if ($role === 'admin') {
-        $stmt = $pdo->query("SELECT * FROM tasks");
+        if ($semester !== null) {
+            $stmt = $pdo->prepare("SELECT * FROM tasks WHERE semester = ?");
+            $stmt->execute([$semester]);
+        } else {
+            $stmt = $pdo->query("SELECT * FROM tasks");
+        }
         $tasks = $stmt->fetchAll();
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM tasks WHERE studentId = ?");
-        $stmt->execute([$userId]);
+        if ($semester !== null) {
+            $stmt = $pdo->prepare("SELECT * FROM tasks WHERE studentId = ? AND semester = ?");
+            $stmt->execute([$userId, $semester]);
+        } else {
+            $stmt = $pdo->prepare("SELECT * FROM tasks WHERE studentId = ?");
+            $stmt->execute([$userId]);
+        }
         $tasks = $stmt->fetchAll();
     }
     
@@ -420,13 +479,14 @@ elseif ($path === '/tasks' && $request_method === 'POST') {
     $dueDate = $body['dueDate'] ?? '';
     $description = $body['description'] ?? '';
     $studentId = $body['studentId'] ?? '';
+    $semester = $body['semester'] ?? 1;
     
     $id = 'task-' . round(microtime(true) * 1000);
     $createdAt = gmdate('Y-m-d\TH:i:s.000\Z');
     $completedAt = $status === 'done' ? gmdate('Y-m-d\TH:i:s.000\Z') : null;
     
-    $stmt = $pdo->prepare("INSERT INTO tasks (id, title, categoryId, priority, status, dueDate, description, studentId, createdAt, completedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$id, $title, $categoryId, $priority, $status, $dueDate, $description, $studentId, $createdAt, $completedAt]);
+    $stmt = $pdo->prepare("INSERT INTO tasks (id, title, categoryId, priority, status, dueDate, description, studentId, createdAt, completedAt, semester) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$id, $title, $categoryId, $priority, $status, $dueDate, $description, $studentId, $createdAt, $completedAt, $semester]);
     
     // Insert subtasks
     $subtasks = $body['subtasks'] ?? [];
@@ -452,7 +512,7 @@ elseif ($path === '/tasks' && $request_method === 'POST') {
     $t = [
         'id' => $id, 'title' => $title, 'categoryId' => $categoryId, 'priority' => $priority, 'status' => $status,
         'dueDate' => $dueDate, 'description' => $description, 'studentId' => $studentId, 'createdAt' => $createdAt, 'completedAt' => $completedAt,
-        'subtasks' => $subtasks, 'attachments' => $attachments
+        'semester' => $semester, 'subtasks' => $subtasks, 'attachments' => $attachments
     ];
     sendJson($t);
 }

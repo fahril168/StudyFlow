@@ -15,15 +15,12 @@
   align-items: center;
   gap: 12px;
   flex-grow: 1;
-  max-width: 600px;
-  flex-wrap: nowrap; // prevent wrapping of filters
-  // ensure items stay on one line
+  flex-wrap: nowrap;
 }
 
 .search-input-wrapper {
   position: relative;
-  flex-grow: 1;
-  min-width: 200px;
+  flex-grow: 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -36,18 +33,18 @@
 }
 
 .search-control {
-  flex: 1;
-  width: auto;
+  width: 140px;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
   background-color: var(--bg-card);
   color: var(--text-primary);
   font-size: 0.85rem;
-  transition: all var(--transition-fast);
+  transition: width 0.3s ease, border-color var(--transition-fast);
 }
 
 .search-control:focus {
+  width: 280px;
   border-color: var(--border-focus);
 }
 
@@ -60,9 +57,130 @@
   font-size: 0.85rem;
   cursor: pointer;
   outline: none;
-  min-width: 120px; /* ensure enough space */
-  max-width: 150px;
+  min-width: 120px;
+  max-width: 180px;
   flex: 0 0 auto;
+}
+
+/* Custom Multi Select Dropdown */
+.multi-select-wrapper {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.multi-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  min-width: 180px;
+  max-width: 240px;
+  transition: all var(--transition-fast);
+}
+
+.multi-select-btn:focus,
+.multi-select-btn.active {
+  border-color: var(--border-focus);
+}
+
+.multi-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: max-content;
+  min-width: 450px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  max-height: 350px;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.multi-select-dropdown.show {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ms-columns {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.ms-group {
+  padding: 12px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.ms-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.ms-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 24px;
+}
+
+.ms-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  transition: background var(--transition-fast);
+}
+
+.ms-item:hover {
+  background-color: var(--bg-hover);
+}
+
+.ms-item input[type="checkbox"],
+.ms-group-header input[type="checkbox"] {
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+  accent-color: var(--primary);
+}
+
+.ms-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 0;
+}
+
+.ms-divider-vertical {
+  width: 1px;
+  background-color: var(--border-color);
+  align-self: stretch;
+  margin: 8px 0;
 }
 
 .filter-select:focus {

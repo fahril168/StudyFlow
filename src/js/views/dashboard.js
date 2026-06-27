@@ -17,7 +17,7 @@ export async function renderDashboard(container) {
 // Student Dashboard Renderer
 async function renderStudentDashboard(container, user) {
   const tasks = await stateManager.getTasks();
-  const categories = await stateManager.getCategories();
+  const categories = await stateManager.getCategories(false);
   const notes = await stateManager.getNotes();
 
   // 1. Calculate Stats
