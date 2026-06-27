@@ -66,11 +66,9 @@ async function renderLayout(container, user) {
         <div class="view-toggle-group">
           <button class="toggle-btn ${viewMode === 'kanban' ? 'active' : ''}" id="toggle-kanban" title="Tampilan Papan Kartu">
             <i data-lucide="grid"></i>
-            <span>Kartu</span>
           </button>
           <button class="toggle-btn ${viewMode === 'list' ? 'active' : ''}" id="toggle-list" title="Tampilan Daftar">
             <i data-lucide="list"></i>
-            <span>Daftar</span>
           </button>
         </div>
 

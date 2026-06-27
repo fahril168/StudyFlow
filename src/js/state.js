@@ -35,8 +35,8 @@ class StateManager {
       const userSerialized = localStorage.getItem(STATE_USER_KEY);
       if (userSerialized) {
         this.currentUser = JSON.parse(userSerialized);
+        this.currentFilterSemester = this.currentUser.current_semester || 1;
       }
-
     } catch (e) {
       console.error('Error loading session from localStorage:', e);
     }

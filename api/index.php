@@ -348,11 +348,9 @@ elseif (preg_match('#^/categories/([^/]+)$#', $path, $matches) && $request_metho
     $stmt = $pdo->prepare("UPDATE categories SET name = ?, color = ?, semester = ?, is_global = ? WHERE id = ?");
     $stmt->execute([$name, $color, $semester, $is_global, $catId]);
     
-    // Auto-migrate tasks to match the category's semester if it's a specific course (not global)
-    if (!$is_global) {
-        $stmt2 = $pdo->prepare("UPDATE tasks SET semester = ? WHERE categoryId = ?");
-        $stmt2->execute([$semester, $catId]);
-    }
+    // Auto-migrate tasks to match the category's semester
+    $stmt2 = $pdo->prepare("UPDATE tasks SET semester = ? WHERE categoryId = ?");
+    $stmt2->execute([$semester, $catId]);
     
     sendJson(['success' => true, 'category' => [
         'id' => $catId, 'name' => $name, 'color' => $color, 'semester' => $semester, 'is_global' => $is_global
