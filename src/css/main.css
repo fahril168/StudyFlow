@@ -310,6 +310,7 @@ button {
   flex-direction: column;
   min-height: 100vh;
   overflow-y: auto;
+  min-width: 0;
 }
 
 /* Top Header */
@@ -740,13 +741,53 @@ button {
   }
 }
 
-@media (max-width: 480px) {
-  .view-container {
-    padding: var(--spacing-md);
+@media (max-width: 768px) {
+  .top-header {
+    height: auto;
+    min-height: 70px;
+    padding: 12px var(--spacing-md);
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
 
-  .top-header {
-    padding: var(--spacing-sm) var(--spacing-md);
+  .header-left {
+    min-width: 0;
+    flex: 1;
+  }
+  
+  .header-greeting h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-right {
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .semester-filter-wrapper {
+    margin-right: 0 !important;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    justify-content: center;
+    position: relative;
+  }
+  
+  .semester-filter-wrapper select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    min-width: unset !important;
   }
 
   .header-greeting h1 {
@@ -755,5 +796,21 @@ button {
 
   .header-greeting p {
     display: none;
+  }
+  
+  /* Make header action buttons slightly smaller on mobile */
+  .notification-btn {
+    padding: 10px;
+  }
+  
+  .header-avatar {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-container {
+    padding: var(--spacing-md);
   }
 }

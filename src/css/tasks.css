@@ -649,3 +649,91 @@
 .subtask-check {
   accent-color: var(--primary);
 }
+
+/* Mobile Responsiveness for Tasks Page */
+@media (max-width: 768px) {
+  .tasks-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .toolbar-left, .toolbar-right {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    flex: 0 0 auto;
+    position: relative;
+    transition: all var(--transition-normal);
+  }
+  
+  .search-input-wrapper:focus-within,
+  .search-input-wrapper:has(.search-control:not(:placeholder-shown)) {
+    flex: 1 1 100%;
+  }
+  
+  .search-input-wrapper i {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .search-control {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    color: transparent;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+  }
+  
+  .search-control::placeholder {
+    color: transparent;
+  }
+  
+  .search-control:focus,
+  .search-control:not(:placeholder-shown) {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    color: var(--text-primary);
+    cursor: text;
+  }
+  
+  .search-control:focus::placeholder,
+  .search-control:not(:placeholder-shown)::placeholder {
+    color: var(--text-muted);
+  }
+
+  .filter-select, .multi-select-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
+
+  .list-view-container {
+    overflow-x: auto;
+  }
+  
+  #manage-categories-btn span,
+  #add-task-btn span {
+    display: none;
+  }
+  
+  #manage-categories-btn,
+  #add-task-btn {
+    padding: 10px;
+    min-width: 40px;
+    height: 40px;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+}
