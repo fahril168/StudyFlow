@@ -14,11 +14,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// MySQL configuration (local XAMPP)
-$host = 'sql110.infinityfree.com';
-$user = 'if0_42281786';
-$password = 'riel2323';
-$dbname = 'if0_42281786_studyflow';
+// Smart Server Detection: Local vs Production (InfinityFree)
+$is_localhost = in_array($_SERVER['SERVER_NAME'], ['localhost', '127.0.0.1', '::1']);
+
+if ($is_localhost) {
+    // MySQL configuration (local XAMPP)
+    $host = '127.0.0.1';
+    $user = 'root';
+    $password = '';
+    $dbname = 'studyflow';
+} else {
+    // MySQL configuration (InfinityFree Production)
+    $host = 'sql110.infinityfree.com';
+    $user = 'if0_42281786';
+    $password = 'riel2323';
+    $dbname = 'if0_42281786_studyflow';
+}
 
 try {
     // Connect to MySQL server first to check/create db
