@@ -425,21 +425,29 @@ elseif ($path === '/tasks' && $request_method === 'GET') {
     
     if ($role === 'admin') {
         if ($semester !== null) {
-            $stmt = $pdo->prepare("SELECT * FROM tasks WHERE semester = ?");
+            $stmt = $pdo->prepare("
+                SELECT t.* FROM tasks t 
+                LEFT JOIN categories c ON t.categoryId = c.id 
+                WHERE t.semester = ? OR c.is_global = 1
+            ");
             $stmt->execute([$semester]);
         } else {
             $stmt = $pdo->query("SELECT * FROM tasks");
         }
-        $tasks = $stmt->fetchAll();
+        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } else {
         if ($semester !== null) {
-            $stmt = $pdo->prepare("SELECT * FROM tasks WHERE studentId = ? AND semester = ?");
+            $stmt = $pdo->prepare("
+                SELECT t.* FROM tasks t 
+                LEFT JOIN categories c ON t.categoryId = c.id 
+                WHERE t.studentId = ? AND (t.semester = ? OR c.is_global = 1)
+            ");
             $stmt->execute([$userId, $semester]);
         } else {
             $stmt = $pdo->prepare("SELECT * FROM tasks WHERE studentId = ?");
             $stmt->execute([$userId]);
         }
-        $tasks = $stmt->fetchAll();
+        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
     // Fetch related subtasks and attachments
