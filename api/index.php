@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * StudyFlow PHP + MySQL Backend (XAMPP & Apache)
  * Serves as the unified REST API router.
@@ -49,8 +48,6 @@ try {
         color VARCHAR(20) NOT NULL
     )");
 
-
-
     $pdo->exec("CREATE TABLE IF NOT EXISTS tasks (
         id VARCHAR(50) PRIMARY KEY,
         title VARCHAR(200) NOT NULL,
@@ -59,8 +56,6 @@ try {
         status VARCHAR(20) NOT NULL,
         dueDate VARCHAR(50),
         description TEXT,
-        attachments TEXT,
-        subtasks TEXT,
         studentId VARCHAR(50),
         createdAt VARCHAR(50),
         completedAt VARCHAR(50),
@@ -76,66 +71,89 @@ try {
         createdAt VARCHAR(50) NOT NULL,
         FOREIGN KEY (studentId) REFERENCES users(id) ON DELETE CASCADE
     )");
-
-    // Seed mock data if database is empty
-    $stmt = $pdo->query("SELECT count(*) as count FROM users");
-    $userCount = $stmt->fetch()['count'];
-    if ($userCount == 0) {
-        // Seed users
-        $pdo->exec("INSERT INTO users (id, email, password, name, nim, prodi, role, avatar) VALUES 
-        ('stud-1', 'student@studyflow.id', 'student123', 'Reza Aditya', '10121045', 'Teknik Informatika', 'student', 'https://api.dicebear.com/7.x/adventurer/svg?seed=Reza'),
-        ('admin-1', 'admin@studyflow.id', 'admin123', 'Dr. Budi Santoso', 'NIP. 19800812', 'Koordinator RPL & Basis Data', 'admin', 'https://api.dicebear.com/7.x/adventurer/svg?seed=Budi')");
-
-        // Seed categories
-        $pdo->exec("INSERT INTO categories (id, name, color) VALUES 
-        ('cat-ai', 'Artificial Intelligence', '#6366f1'),
-        ('cat-db', 'Basis Data', '#ec4899'),
-        ('cat-rpl', 'Rekayasa Perangkat Lunak', '#10b981'),
-        ('cat-jarkom', 'Jaringan Komputer', '#f59e0b')");
-
-        // Seed tasks
-        $tomorrowStr = date('Y-m-d', time() + 20 * 3600) . 'T23:59';
-        $threeDaysStr = date('Y-m-d', time() + 24 * 3600 * 3) . 'T12:00';
-        $yesterdayStr = date('Y-m-d', time() - 24 * 3600) . 'T23:59';
-        $fourDaysAgoStr = date('Y-m-d', time() - 24 * 3600 * 4) . 'T17:00';
-
-        $attachment1 = json_encode([['name' => 'Modul_Praktikum_AI_AStar.pdf', 'size' => 1048576, 'type' => 'application/pdf', 'date' => '2026-06-05']]);
-        $attachment4 = json_encode([['name' => 'Laporan_Subnetting_Reza.pdf', 'size' => 2097152, 'type' => 'application/pdf', 'date' => '2026-06-04']]);
-        
-        $subtasks1 = json_encode([
-            ['id' => 'sub-1', 'title' => 'Pahami pseudocode A*', 'isCompleted' => true],
-            ['id' => 'sub-2', 'title' => 'Tulis fungsi heuristik Manhattan', 'isCompleted' => false],
-            ['id' => 'sub-3', 'title' => 'Uji dengan simulasi peta', 'isCompleted' => false]
-        ]);
-        $subtasks2 = json_encode([
-            ['id' => 'sub-4', 'title' => 'Analisis entitas e-commerce', 'isCompleted' => true],
-            ['id' => 'sub-5', 'title' => 'Buat ERD sementara', 'isCompleted' => true],
-            ['id' => 'sub-6', 'title' => 'Konversi ke 3NF', 'isCompleted' => false]
-        ]);
-
-        $stmt = $pdo->prepare("INSERT INTO tasks (id, title, categoryId, priority, status, dueDate, description, attachments, subtasks, studentId, createdAt, completedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        
-        $stmt->execute(['task-1', 'Tugas Mandiri 1: Implementasi A* Search', 'cat-ai', 'tinggi', 'todo', $tomorrowStr, 'Implementasikan algoritma pencarian A* dalam bahasa Python untuk mencari rute terpendek dari peta simulasi.', $attachment1, $subtasks1, 'stud-1', '2026-06-07T10:00:00.000Z', NULL]);
-        $stmt->execute(['task-2', 'Normalisasi Database E-Commerce', 'cat-db', 'sedang', 'inprogress', $threeDaysStr, 'Lakukan proses normalisasi database untuk model transaksi e-commerce hingga bentuk 3NF.', '[]', $subtasks2, 'stud-1', '2026-06-06T14:30:00.000Z', NULL]);
-        $stmt->execute(['task-3', 'Dokumen SRS (Software Requirement Specification)', 'cat-rpl', 'tinggi', 'todo', $yesterdayStr, 'Susun dokumen SRS proyek kelompok sistem informasi perpustakaan menggunakan standar IEEE 830.', '[]', '[]', 'stud-1', '2026-06-05T09:00:00.000Z', NULL]);
-        $stmt->execute(['task-4', 'Laporan Praktikum Subnetting VLSM', 'cat-jarkom', 'rendah', 'done', $fourDaysAgoStr, 'Selesaikan laporan praktikum perhitungan subnetting IP Address dengan metode VLSM.', $attachment4, '[]', 'stud-1', '2026-06-03T08:00:00.000Z', '2026-06-07T18:00:00.000Z']);
-        $stmt->execute(['task-5', 'Latihan Soal Probabilitas', 'cat-ai', 'sedang', 'done', $yesterdayStr, 'Menyelesaikan 10 soal latihan probabilitas Bayes Theorem.', '[]', '[]', 'stud-1', '2026-06-01T09:00:00.000Z', '2026-06-05T15:00:00.000Z']);
-        $stmt->execute(['task-6', 'Review Jurnal RPL', 'cat-rpl', 'rendah', 'done', $yesterdayStr, 'Review jurnal internasional mengenai Agile methodology.', '[]', '[]', 'stud-1', '2026-05-31T11:00:00.000Z', '2026-06-02T16:30:00.000Z']);
-        $stmt->execute(['task-7', 'Implementasi Query Optimization', 'cat-db', 'tinggi', 'done', $yesterdayStr, 'Optimasi performa query database dengan index.', '[]', '[]', 'stud-1', '2026-05-26T10:00:00.000Z', '2026-05-29T14:00:00.000Z']);
-        $stmt->execute(['task-8', 'Tugas Kelompok Jaringan Nirkabel', 'cat-jarkom', 'sedang', 'done', $yesterdayStr, 'Makalah perbandingan wifi standards IEEE 802.11.', '[]', '[]', 'stud-1', '2026-05-24T09:00:00.000Z', '2026-05-28T11:00:00.000Z']);
-        $stmt->execute(['task-9', 'Desain UI/UX StudyFlow', 'cat-rpl', 'tinggi', 'done', $yesterdayStr, 'Membuat mockup hi-fi dengan Figma.', '[]', '[]', 'stud-1', '2026-05-18T10:00:00.000Z', '2026-05-22T17:00:00.000Z']);
-        $stmt->execute(['task-10', 'Kuis AI DFS & BFS', 'cat-ai', 'tinggi', 'done', $yesterdayStr, 'Kuis online di e-learning.', '[]', '[]', 'stud-1', '2026-05-19T08:00:00.000Z', '2026-05-20T09:30:00.000Z']);
-        $stmt->execute(['task-11', 'Analisis Kebutuhan Sistem', 'cat-rpl', 'sedang', 'done', $yesterdayStr, 'Studi kasus SRS kebutuhan fungsional.', '[]', '[]', 'stud-1', '2026-05-10T14:00:00.000Z', '2026-05-13T16:00:00.000Z']);
+    
 
 
+    // --- NEW TABLES ---
+    $pdo->exec("CREATE TABLE IF NOT EXISTS subtasks (
+        id VARCHAR(50) PRIMARY KEY,
+        taskId VARCHAR(50) NOT NULL,
+        title TEXT NOT NULL,
+        isCompleted TINYINT(1) DEFAULT 0,
+        FOREIGN KEY (taskId) REFERENCES tasks(id) ON DELETE CASCADE
+    )");
 
-        // Seed sticky notes
-        $now = gmdate('Y-m-d\TH:i:s.000\Z');
-        $pdo->exec("INSERT INTO sticky_notes (id, studentId, content, color, createdAt) VALUES
-        ('note-1', 'stud-1', 'Cari bahan materi AI untuk presentasi kelompok hari Kamis.', '#fef08a', '$now'),
-        ('note-2', 'stud-1', 'Beli buku referensi basis data di koperasi mahasiswa.', '#bbf7d0', '$now'),
-        ('note-3', 'stud-1', 'Siapkan daftar pertanyaan untuk sesi asistensi RPL.', '#bfdbfe', '$now')");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS task_attachments (
+        id VARCHAR(50) PRIMARY KEY,
+        taskId VARCHAR(50) NOT NULL,
+        fileName VARCHAR(255) NOT NULL,
+        fileSize INT NOT NULL,
+        fileType VARCHAR(100),
+        fileUrl TEXT,
+        createdAt VARCHAR(50),
+        FOREIGN KEY (taskId) REFERENCES tasks(id) ON DELETE CASCADE
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS notifications (
+        id VARCHAR(50) PRIMARY KEY,
+        studentId VARCHAR(50) NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        message TEXT,
+        type VARCHAR(20) DEFAULT 'info',
+        isRead TINYINT(1) DEFAULT 0,
+        createdAt VARCHAR(50),
+        FOREIGN KEY (studentId) REFERENCES users(id) ON DELETE CASCADE
+    )");
+
+    // --- AUTOMATIC MIGRATION SCRIPT ---
+    // If the 'tasks' table still has the 'subtasks' JSON column, we migrate it then drop it.
+    try {
+        $colCheck = $pdo->query("SHOW COLUMNS FROM tasks LIKE 'subtasks'");
+        if ($colCheck->rowCount() > 0) {
+            $legacyTasks = $pdo->query("SELECT id, subtasks, attachments FROM tasks")->fetchAll();
+            foreach ($legacyTasks as $lt) {
+                $tId = $lt['id'];
+                
+                // Migrate subtasks
+                if (!empty($lt['subtasks']) && $lt['subtasks'] !== '[]') {
+                    $subs = json_decode($lt['subtasks'], true);
+                    if (is_array($subs)) {
+                        foreach ($subs as $sub) {
+                            $subId = $sub['id'] ?? ('sub-' . uniqid());
+                            $title = $sub['title'] ?? '';
+                            $isComp = !empty($sub['isCompleted']) ? 1 : 0;
+                            
+                            $stmt = $pdo->prepare("INSERT IGNORE INTO subtasks (id, taskId, title, isCompleted) VALUES (?, ?, ?, ?)");
+                            $stmt->execute([$subId, $tId, $title, $isComp]);
+                        }
+                    }
+                }
+                
+                // Migrate attachments
+                if (!empty($lt['attachments']) && $lt['attachments'] !== '[]') {
+                    $atts = json_decode($lt['attachments'], true);
+                    if (is_array($atts)) {
+                        foreach ($atts as $att) {
+                            $attId = 'att-' . uniqid();
+                            $name = $att['name'] ?? '';
+                            $size = (int)($att['size'] ?? 0);
+                            $type = $att['type'] ?? '';
+                            $date = $att['date'] ?? gmdate('Y-m-d\TH:i:s.000\Z');
+                            
+                            $stmt = $pdo->prepare("INSERT IGNORE INTO task_attachments (id, taskId, fileName, fileSize, fileType, createdAt) VALUES (?, ?, ?, ?, ?, ?)");
+                            $stmt->execute([$attId, $tId, $name, $size, $type, $date]);
+                        }
+                    }
+                }
+            }
+            
+            // Drop legacy JSON columns
+            $pdo->exec("ALTER TABLE tasks DROP COLUMN subtasks, DROP COLUMN attachments");
+        }
+    } catch (Exception $em) {
+        // Ignore if already dropped
     }
+
 
 } catch (PDOException $e) {
     header('Content-Type: application/json', true, 500);
@@ -326,6 +344,8 @@ elseif (preg_match('#^/notes/([^/]+)$#', $path, $matches) && $request_method ===
     sendJson(['success' => true]);
 }
 
+// --- TASKS API MODIFIED FOR NEW TABLES ---
+
 elseif ($path === '/tasks' && $request_method === 'GET') {
     $userId = $_GET['userId'] ?? '';
     $role = $_GET['role'] ?? 'student';
@@ -339,9 +359,36 @@ elseif ($path === '/tasks' && $request_method === 'GET') {
         $tasks = $stmt->fetchAll();
     }
     
+    // Fetch related subtasks and attachments
+    $stmtSub = $pdo->query("SELECT * FROM subtasks");
+    $allSubs = $stmtSub->fetchAll();
+    
+    $stmtAtt = $pdo->query("SELECT * FROM task_attachments");
+    $allAtts = $stmtAtt->fetchAll();
+    
     foreach ($tasks as &$t) {
-        $t['attachments'] = json_decode($t['attachments'] ?? '[]', true) ?: [];
-        $t['subtasks'] = json_decode($t['subtasks'] ?? '[]', true) ?: [];
+        $tId = $t['id'];
+        
+        $tSubs = array_filter($allSubs, function($s) use ($tId) { return $s['taskId'] === $tId; });
+        // Format to match old JSON
+        $t['subtasks'] = array_values(array_map(function($s) {
+            return [
+                'id' => $s['id'],
+                'title' => $s['title'],
+                'isCompleted' => (bool)$s['isCompleted']
+            ];
+        }, $tSubs));
+        
+        $tAtts = array_filter($allAtts, function($a) use ($tId) { return $a['taskId'] === $tId; });
+        $t['attachments'] = array_values(array_map(function($a) {
+            return [
+                'id' => $a['id'],
+                'name' => $a['fileName'],
+                'size' => $a['fileSize'],
+                'type' => $a['fileType'],
+                'date' => $a['createdAt']
+            ];
+        }, $tAtts));
     }
     
     sendJson($tasks);
@@ -355,24 +402,42 @@ elseif ($path === '/tasks' && $request_method === 'POST') {
     $status = $body['status'] ?? 'todo';
     $dueDate = $body['dueDate'] ?? '';
     $description = $body['description'] ?? '';
-    $attachments = $body['attachments'] ?? [];
-    $subtasks = $body['subtasks'] ?? [];
     $studentId = $body['studentId'] ?? '';
     
     $id = 'task-' . round(microtime(true) * 1000);
-    $attachmentsJson = json_encode($attachments);
-    $subtasksJson = json_encode($subtasks);
     $createdAt = gmdate('Y-m-d\TH:i:s.000\Z');
     $completedAt = $status === 'done' ? gmdate('Y-m-d\TH:i:s.000\Z') : null;
     
-    $stmt = $pdo->prepare("INSERT INTO tasks (id, title, categoryId, priority, status, dueDate, description, attachments, subtasks, studentId, createdAt, completedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$id, $title, $categoryId, $priority, $status, $dueDate, $description, $attachmentsJson, $subtasksJson, $studentId, $createdAt, $completedAt]);
+    $stmt = $pdo->prepare("INSERT INTO tasks (id, title, categoryId, priority, status, dueDate, description, studentId, createdAt, completedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$id, $title, $categoryId, $priority, $status, $dueDate, $description, $studentId, $createdAt, $completedAt]);
     
-    sendJson([
+    // Insert subtasks
+    $subtasks = $body['subtasks'] ?? [];
+    foreach ($subtasks as $sub) {
+        $sId = $sub['id'] ?? ('sub-' . uniqid());
+        $sTitle = $sub['title'] ?? '';
+        $sComp = !empty($sub['isCompleted']) ? 1 : 0;
+        $pdo->prepare("INSERT INTO subtasks (id, taskId, title, isCompleted) VALUES (?, ?, ?, ?)")->execute([$sId, $id, $sTitle, $sComp]);
+    }
+    
+    // Insert attachments
+    $attachments = $body['attachments'] ?? [];
+    foreach ($attachments as $att) {
+        $aId = $att['id'] ?? ('att-' . uniqid());
+        $aName = $att['name'] ?? '';
+        $aSize = (int)($att['size'] ?? 0);
+        $aType = $att['type'] ?? '';
+        $aDate = $att['date'] ?? gmdate('Y-m-d\TH:i:s.000\Z');
+        $pdo->prepare("INSERT INTO task_attachments (id, taskId, fileName, fileSize, fileType, createdAt) VALUES (?, ?, ?, ?, ?, ?)")->execute([$aId, $id, $aName, $aSize, $aType, $aDate]);
+    }
+    
+    // Fetch fresh to return
+    $t = [
         'id' => $id, 'title' => $title, 'categoryId' => $categoryId, 'priority' => $priority, 'status' => $status,
-        'dueDate' => $dueDate, 'description' => $description, 'attachments' => $attachments, 'subtasks' => $subtasks,
-        'studentId' => $studentId, 'createdAt' => $createdAt, 'completedAt' => $completedAt
-    ]);
+        'dueDate' => $dueDate, 'description' => $description, 'studentId' => $studentId, 'createdAt' => $createdAt, 'completedAt' => $completedAt,
+        'subtasks' => $subtasks, 'attachments' => $attachments
+    ];
+    sendJson($t);
 }
 
 elseif (preg_match('#^/tasks/([^/]+)$#', $path, $matches) && $request_method === 'PUT') {
@@ -390,8 +455,6 @@ elseif (preg_match('#^/tasks/([^/]+)$#', $path, $matches) && $request_method ===
     }
     if (array_key_exists('dueDate', $body)) { $updates[] = 'dueDate = ?'; $values[] = $body['dueDate']; }
     if (array_key_exists('description', $body)) { $updates[] = 'description = ?'; $values[] = $body['description']; }
-    if (array_key_exists('attachments', $body)) { $updates[] = 'attachments = ?'; $values[] = json_encode($body['attachments']); }
-    if (array_key_exists('subtasks', $body)) { $updates[] = 'subtasks = ?'; $values[] = json_encode($body['subtasks']); }
     
     if (count($updates) > 0) {
         $values[] = $taskId;
@@ -400,12 +463,37 @@ elseif (preg_match('#^/tasks/([^/]+)$#', $path, $matches) && $request_method ===
         $stmt->execute($values);
     }
     
+    // Update subtasks (full replace for simplicity)
+    if (array_key_exists('subtasks', $body)) {
+        $pdo->prepare("DELETE FROM subtasks WHERE taskId = ?")->execute([$taskId]);
+        foreach ($body['subtasks'] as $sub) {
+            $sId = $sub['id'] ?? ('sub-' . uniqid());
+            $sTitle = $sub['title'] ?? '';
+            $sComp = !empty($sub['isCompleted']) ? 1 : 0;
+            $pdo->prepare("INSERT INTO subtasks (id, taskId, title, isCompleted) VALUES (?, ?, ?, ?)")->execute([$sId, $taskId, $sTitle, $sComp]);
+        }
+    }
+    
+    // Update attachments (full replace for simplicity)
+    if (array_key_exists('attachments', $body)) {
+        $pdo->prepare("DELETE FROM task_attachments WHERE taskId = ?")->execute([$taskId]);
+        foreach ($body['attachments'] as $att) {
+            $aId = $att['id'] ?? ('att-' . uniqid());
+            $aName = $att['name'] ?? '';
+            $aSize = (int)($att['size'] ?? 0);
+            $aType = $att['type'] ?? '';
+            $aDate = $att['date'] ?? gmdate('Y-m-d\TH:i:s.000\Z');
+            $pdo->prepare("INSERT INTO task_attachments (id, taskId, fileName, fileSize, fileType, createdAt) VALUES (?, ?, ?, ?, ?, ?)")->execute([$aId, $taskId, $aName, $aSize, $aType, $aDate]);
+        }
+    }
+    
+    // Refetch the full task
     $stmt = $pdo->prepare("SELECT * FROM tasks WHERE id = ?");
     $stmt->execute([$taskId]);
     $task = $stmt->fetch();
     if ($task) {
-        $task['attachments'] = json_decode($task['attachments'] ?? '[]', true) ?: [];
-        $task['subtasks'] = json_decode($task['subtasks'] ?? '[]', true) ?: [];
+        $task['subtasks'] = array_key_exists('subtasks', $body) ? $body['subtasks'] : []; // Simplified mapping
+        $task['attachments'] = array_key_exists('attachments', $body) ? $body['attachments'] : [];
     }
     sendJson($task);
 }
@@ -417,6 +505,61 @@ elseif (preg_match('#^/tasks/([^/]+)$#', $path, $matches) && $request_method ===
     sendJson(['success' => true]);
 }
 
+// --- NOTIFICATIONS API ---
+
+elseif ($path === '/notifications' && $request_method === 'GET') {
+    $userId = $_GET['userId'] ?? '';
+    $stmt = $pdo->prepare("SELECT * FROM notifications WHERE studentId = ? ORDER BY createdAt DESC");
+    $stmt->execute([$userId]);
+    $notifs = $stmt->fetchAll();
+    
+    // Normalize output for frontend (which expects 'taskId' or 'time' logic)
+    foreach ($notifs as &$n) {
+        $n['isRead'] = (bool)$n['isRead'];
+        $n['time'] = $n['createdAt'];
+    }
+    sendJson($notifs);
+}
+
+elseif ($path === '/notifications' && $request_method === 'POST') {
+    $body = getJsonBody();
+    $studentId = $body['studentId'] ?? '';
+    $title = $body['title'] ?? '';
+    $message = $body['message'] ?? '';
+    $type = $body['type'] ?? 'info';
+    
+    $id = 'notif-' . round(microtime(true) * 1000);
+    $createdAt = gmdate('Y-m-d\TH:i:s.000\Z');
+    
+    $stmt = $pdo->prepare("INSERT INTO notifications (id, studentId, title, message, type, isRead, createdAt) VALUES (?, ?, ?, ?, ?, 0, ?)");
+    $stmt->execute([$id, $studentId, $title, $message, $type, $createdAt]);
+    
+    sendJson(['success' => true]);
+}
+
+elseif (preg_match('#^/notifications/([^/]+)/read$#', $path, $matches) && $request_method === 'PUT') {
+    $notifId = $matches[1];
+    $stmt = $pdo->prepare("UPDATE notifications SET isRead = 1 WHERE id = ?");
+    $stmt->execute([$notifId]);
+    sendJson(['success' => true]);
+}
+
+elseif ($path === '/notifications/clear' && $request_method === 'DELETE') {
+    $body = getJsonBody();
+    $userId = $body['userId'] ?? '';
+    $stmt = $pdo->prepare("DELETE FROM notifications WHERE studentId = ?");
+    $stmt->execute([$userId]);
+    sendJson(['success' => true]);
+}
+
+elseif (preg_match('#^/notifications/([^/]+)$#', $path, $matches) && $request_method === 'DELETE') {
+    $notifId = $matches[1];
+    $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ?");
+    $stmt->execute([$notifId]);
+    sendJson(['success' => true]);
+}
+
 else {
     sendJson(['error' => 'Endpoint not found', 'path' => $path], 404);
 }
+

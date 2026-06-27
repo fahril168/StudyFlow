@@ -135,6 +135,14 @@ async function getFilteredTasks() {
     tasks = tasks.filter(t => t.priority === filterPriority);
   }
 
+  // Sort tasks by dueDate (closest deadline first)
+  // Tasks without a dueDate are placed at the end
+  tasks.sort((a, b) => {
+    if (!a.dueDate) return 1;
+    if (!b.dueDate) return -1;
+    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+  });
+
   return tasks;
 }
 
@@ -502,7 +510,11 @@ async function openTaskFormModal(taskId = null, pageContainer) {
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="task-due-input">Tenggat Waktu (Deadline)</label>
-          <input type="datetime-local" id="task-due-input" class="form-input-control" value="${task.dueDate}" required ${isAdmin ? 'disabled' : ''}>
+          <input type="datetime-local" id="task-due-input" class="form-input-control" value="${task.dueDate || ''}" ${!task.dueDate && isEdit ? 'disabled' : 'required'} ${isAdmin ? 'disabled' : ''}>
+          <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="task-no-deadline" ${!task.dueDate && isEdit ? 'checked' : ''} ${isAdmin ? 'disabled' : ''}>
+            <label for="task-no-deadline" style="font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">Deadline belum diketahui</label>
+          </div>
         </div>
 
         <div class="form-group">
@@ -609,10 +621,15 @@ async function openTaskFormModal(taskId = null, pageContainer) {
     const catVal = modalBody.querySelector('#task-category-input').value;
     const prioVal = modalBody.querySelector('#task-priority-input').value;
     const statusVal = modalBody.querySelector('#task-status-input').value;
-    const dueVal = modalBody.querySelector('#task-due-input').value;
+    let dueVal = modalBody.querySelector('#task-due-input').value;
     const descVal = modalBody.querySelector('#task-desc-input').value.trim();
+    const noDeadline = modalBody.querySelector('#task-no-deadline').checked;
 
-    if (!titleVal || !dueVal) {
+    if (noDeadline) {
+      dueVal = '';
+    }
+
+    if (!titleVal || (!dueVal && !noDeadline)) {
       showToast('Judul dan Deadline wajib diisi!', 'error');
       return false;
     }
@@ -650,6 +667,22 @@ async function openTaskFormModal(taskId = null, pageContainer) {
 
   // Attach event actions for upload and files inside modal
   const modalBody = document.getElementById('modal-body');
+
+  if (!isAdmin) {
+    const noDeadlineCb = modalBody.querySelector('#task-no-deadline');
+    const dueInput = modalBody.querySelector('#task-due-input');
+    noDeadlineCb.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        dueInput.disabled = true;
+        dueInput.removeAttribute('required');
+        dueInput.value = ''; // Optional: clear value
+      } else {
+        dueInput.disabled = false;
+        dueInput.setAttribute('required', 'required');
+      }
+    });
+  }
+
   const attWrapper = modalBody.querySelector('#task-attachments-list');
   renderAttachments(task.attachments, attWrapper);
 

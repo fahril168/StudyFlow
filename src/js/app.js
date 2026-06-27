@@ -245,7 +245,8 @@ function initAppLayout() {
     }
   });
 
-  clearNotifications.addEventListener('click', () => {
+  clearNotifications.addEventListener('click', async () => {
+    await stateManager.clearAllNotifications();
     notificationList.innerHTML = '<div class="no-notifications">Tidak ada pengingat baru.</div>';
     notificationBadge.classList.add('hidden');
     notificationBadge.textContent = '0';
@@ -280,6 +281,7 @@ function initAppLayout() {
 // Updates notification items in top bar
 async function updateReminders() {
   const reminders = await stateManager.getReminders();
+  const unreadReminders = reminders.filter(r => !r.isRead);
 
   if (reminders.length === 0) {
     notificationBadge.classList.add('hidden');
@@ -288,8 +290,12 @@ async function updateReminders() {
     return;
   }
 
-  notificationBadge.classList.remove('hidden');
-  notificationBadge.textContent = reminders.length;
+  if (unreadReminders.length === 0) {
+    notificationBadge.classList.add('hidden');
+  } else {
+    notificationBadge.classList.remove('hidden');
+    notificationBadge.textContent = unreadReminders.length;
+  }
 
   notificationList.innerHTML = reminders.map(rem => {
     const isDanger = rem.type === 'danger';
@@ -301,36 +307,41 @@ async function updateReminders() {
       hour: '2-digit',
       minute: '2-digit'
     });
+    const readClass = rem.isRead ? 'read' : 'unread';
+    const readStyle = rem.isRead ? 'opacity: 0.6;' : '';
 
     return `
-      <div class="notification-item" data-task-id="${rem.taskId}">
+      <div class="notification-item ${readClass}" data-notif-id="${rem.id}" style="cursor: pointer; ${readStyle}">
         <div class="notification-icon ${rem.type}">
           <i data-lucide="${iconName}"></i>
         </div>
         <div class="notification-info">
           <div class="notification-title">${rem.title}</div>
-          <div class="notification-desc">${rem.desc}</div>
+          <div class="notification-desc">${rem.message}</div>
           <div class="notification-time">${dateFormatted}</div>
         </div>
       </div>
     `;
   }).join('');
 
-  // Add click listener to notification items
+  // Add click listener to mark as read
   notificationList.querySelectorAll('.notification-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const taskId = item.getAttribute('data-task-id');
-      notificationMenu.classList.add('hidden');
-      navigateTo('#tasks');
-      // Highlight the task in tasks view
-      setTimeout(() => {
-        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
-        if (taskCard) {
-          taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          taskCard.classList.add('highlight-glow');
-          setTimeout(() => taskCard.classList.remove('highlight-glow'), 3000);
+    item.addEventListener('click', async () => {
+      const notifId = item.getAttribute('data-notif-id');
+      if (item.classList.contains('unread') && notifId && !notifId.startsWith('temp-')) {
+        await stateManager.markNotificationRead(notifId);
+        item.classList.remove('unread');
+        item.classList.add('read');
+        item.style.opacity = '0.6';
+        
+        let currentCount = parseInt(notificationBadge.textContent) || 0;
+        if (currentCount > 1) {
+          notificationBadge.textContent = currentCount - 1;
+        } else {
+          notificationBadge.classList.add('hidden');
+          notificationBadge.textContent = '0';
         }
-      }, 500);
+      }
     });
   });
 

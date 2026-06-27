@@ -43,9 +43,12 @@ export async function renderNotifications(container, navigateTo) {
           hour: '2-digit',
           minute: '2-digit'
         });
+        
+        const readClass = rem.isRead ? 'read' : 'unread';
+        const readStyle = rem.isRead ? 'opacity: 0.6;' : '';
 
         return `
-          <div class="notification-page-item" data-task-id="${rem.taskId}">
+          <div class="notification-page-item ${readClass}" data-notif-id="${rem.id}" style="${readStyle}">
             <div class="notification-page-icon ${rem.type}">
               <i data-lucide="${iconName}"></i>
             </div>
@@ -54,10 +57,10 @@ export async function renderNotifications(container, navigateTo) {
                 <span class="notification-page-title">${rem.title}</span>
                 <span class="notification-page-time">${dateFormatted}</span>
               </div>
-              <div class="notification-page-desc">${rem.desc}</div>
+              <div class="notification-page-desc">${rem.message}</div>
               <div class="notification-action">
-                <span>Lihat Tugas</span>
-                <i data-lucide="arrow-right"></i>
+                <span>Tandai Dibaca</span>
+                <i data-lucide="check-circle"></i>
               </div>
             </div>
           </div>
@@ -68,27 +71,27 @@ export async function renderNotifications(container, navigateTo) {
 
   container.innerHTML = html;
 
-  // Add click listeners to navigate to tasks
+  // Add click listeners to mark as read
   container.querySelectorAll('.notification-page-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const taskId = item.getAttribute('data-task-id');
-      navigateTo('#tasks');
-      // Give the task view time to render, then highlight
-      setTimeout(() => {
-        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
-        if (taskCard) {
-          taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          taskCard.classList.add('highlight-glow');
-          setTimeout(() => taskCard.classList.remove('highlight-glow'), 3000);
-        }
-      }, 500);
+    item.addEventListener('click', async () => {
+      const notifId = item.getAttribute('data-notif-id');
+      if (item.classList.contains('unread') && notifId && !notifId.startsWith('temp-')) {
+        await stateManager.markNotificationRead(notifId);
+        item.classList.remove('unread');
+        item.classList.add('read');
+        item.style.opacity = '0.6';
+        
+        const actionSpan = item.querySelector('.notification-action span');
+        if (actionSpan) actionSpan.textContent = 'Sudah Dibaca';
+      }
     });
   });
 
   // Add click listener for "Bersihkan Semua"
   const clearBtn = container.querySelector('#page-clear-notifications');
   if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
+    clearBtn.addEventListener('click', async () => {
+      await stateManager.clearAllNotifications();
       // Clear the page list
       const listContainer = container.querySelector('.notifications-list-container');
       if (listContainer) {

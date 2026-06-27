@@ -258,57 +258,114 @@ class StateManager {
   }
 
 
-  // Reminders API (Asynchronous Calculation from Database Tasks)
+  // Notifications API (Database backed + Auto-sync from Tasks)
   async getReminders() {
+    if (!this.currentUser) return [];
+    
+    // 1. Fetch persistent notifications from DB
+    let dbNotifs = [];
+    try {
+      const res = await fetch(`/api/notifications?userId=${this.currentUser.id}`);
+      if (res.ok) {
+        dbNotifs = await res.json();
+      }
+    } catch (e) {
+      console.error('Fetch notifs error:', e);
+    }
+    
+    // 2. Fetch tasks and sync new reminders
     const tasks = await this.getTasks();
     const now = Date.now();
-    const reminders = [];
-
-    tasks.forEach(task => {
-      if (task.status === 'done') return;
-      if (!task.dueDate) return;
+    
+    for (const task of tasks) {
+      if (task.status === 'done') continue;
+      if (!task.dueDate) continue;
 
       const dueTime = new Date(task.dueDate).getTime();
       const timeDiff = dueTime - now;
-
-      // Overdue task
+      
+      let title = '';
+      let desc = '';
+      let type = '';
+      
       if (timeDiff < 0) {
-        reminders.push({
-          taskId: task.id,
-          title: `Tugas Terlambat!`,
-          desc: `"${task.title}" telah melewati tenggat waktu.`,
-          type: 'danger',
-          time: task.dueDate
-        });
+        title = `Tugas Terlambat!`;
+        desc = `"${task.title}" telah melewati tenggat waktu.`;
+        type = 'danger';
+      } else if (timeDiff <= 24 * 60 * 60 * 1000) {
+        title = `Mendekati Deadline!`;
+        desc = `Tugas "${task.title}" tersisa kurang dari 24 jam.`;
+        type = 'danger';
+      } else if (timeDiff <= 48 * 60 * 60 * 1000) {
+        title = `Tenggat Waktu Dekat`;
+        desc = `Tugas "${task.title}" harus dikumpulkan dalam 2 hari.`;
+        type = 'warning';
       }
-      // Due within 24 hours
-      else if (timeDiff <= 24 * 60 * 60 * 1000) {
-        reminders.push({
-          taskId: task.id,
-          title: `Mendekati Deadline!`,
-          desc: `Tugas "${task.title}" tersisa kurang dari 24 jam.`,
-          type: 'danger',
-          time: task.dueDate
-        });
+      
+      if (title) {
+        // Check if this specific reminder already exists in DB (by exact description match)
+        const exists = dbNotifs.find(n => n.message === desc);
+        if (!exists) {
+          // Create it in DB
+          try {
+            await fetch('/api/notifications', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                studentId: this.currentUser.id,
+                title: title,
+                message: desc,
+                type: type
+              })
+            });
+            // We just let the next fetch get it, or push it to local array
+            dbNotifs.push({
+              id: 'temp-' + Date.now(),
+              title: title,
+              message: desc,
+              type: type,
+              isRead: false,
+              time: new Date().toISOString()
+            });
+          } catch (e) {
+            console.error('Failed to auto-create notif:', e);
+          }
+        }
       }
-      // Due within 48 hours
-      else if (timeDiff <= 48 * 60 * 60 * 1000) {
-        reminders.push({
-          taskId: task.id,
-          title: `Tenggat Waktu Dekat`,
-          desc: `Tugas "${task.title}" harus dikumpulkan dalam 2 hari.`,
-          type: 'warning',
-          time: task.dueDate
-        });
-      }
-    });
+    }
 
-    return reminders.sort((a, b) => {
+    return dbNotifs.sort((a, b) => {
+      // Unread first
+      if (!a.isRead && b.isRead) return -1;
+      if (a.isRead && !b.isRead) return 1;
+      // Danger first
       if (a.type === 'danger' && b.type !== 'danger') return -1;
       if (a.type !== 'danger' && b.type === 'danger') return 1;
       return new Date(a.time).getTime() - new Date(b.time).getTime();
     });
   }
+
+  async markNotificationRead(notifId) {
+    try {
+      await fetch(`/api/notifications/${notifId}/read`, { method: 'PUT' });
+    } catch (e) {
+      console.error('Failed to mark read:', e);
+    }
+  }
+
+  async clearAllNotifications() {
+    if (!this.currentUser) return;
+    try {
+      await fetch('/api/notifications/clear', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: this.currentUser.id })
+      });
+    } catch (e) {
+      console.error('Failed to clear notifs:', e);
+    }
+  }
+
 
   // Sticky Notes API
   async getNotes() {
