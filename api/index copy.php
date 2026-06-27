@@ -15,10 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // MySQL configuration (local XAMPP)
-$host = 'sql110.infinityfree.com';
-$user = 'if0_42281786';
-$password = 'riel2323';
-$dbname = 'if0_42281786_studyflow';
+$host = '127.0.0.1';
+$user = 'root';
+$password = '';
+$dbname = 'studyflow';
 
 try {
     // Connect to MySQL server first to check/create db
