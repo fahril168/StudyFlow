@@ -248,9 +248,15 @@ elseif ($path === '/profile' && $request_method === 'PUT') {
     $prodi = $body['prodi'] ?? '';
     $email = $body['email'] ?? '';
     $avatar = $body['avatar'] ?? '';
+    $password = $body['password'] ?? '';
     
-    $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ? WHERE id = ?");
-    $stmt->execute([$name, $nim, $prodi, $email, $avatar, $userId]);
+    if ($password !== '') {
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ?, password = ? WHERE id = ?");
+        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $password, $userId]);
+    } else {
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ? WHERE id = ?");
+        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $userId]);
+    }
     
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
     $stmt->execute([$userId]);

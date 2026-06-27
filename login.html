@@ -17,8 +17,20 @@
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Prevent theme flash -->
+  <script>
+    if (localStorage.getItem('studyflow_theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
 </head>
 <body>
+  <div style="position: absolute; top: 16px; right: 16px; z-index: 50;">
+    <button id="theme-toggle-btn" class="auth-btn" style="padding: 8px 12px; width: auto; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);" title="Ganti Tema">
+      <i data-lucide="moon" id="theme-icon"></i>
+    </button>
+  </div>
   <div id="auth-container" class="auth-container">
     
     <!-- Login View -->
@@ -45,6 +57,7 @@
           <div class="input-wrapper">
             <i data-lucide="lock"></i>
             <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+            <i data-lucide="eye" class="toggle-password" id="toggle-login-password" title="Lihat password"></i>
           </div>
         </div>
 
@@ -55,11 +68,7 @@
         Belum punya akun? <a href="#" id="toggle-to-register">Daftar Sekarang</a>
       </div>
 
-      <div class="demo-credentials">
-        <h5>Akun Demo:</h5>
-        <p><strong>Mahasiswa:</strong> <code>student@studyflow.id</code> / <code>student123</code></p>
-        <p><strong>Admin:</strong> <code>admin@studyflow.id</code> / <code>admin123</code></p>
-      </div>
+
     </div>
 
     <!-- Register View -->
@@ -110,6 +119,7 @@
           <div class="input-wrapper">
             <i data-lucide="lock"></i>
             <input type="password" id="reg-password" class="form-control" placeholder="Minimal 6 karakter" minlength="6" required>
+            <i data-lucide="eye" class="toggle-password" id="toggle-reg-password" title="Lihat password"></i>
           </div>
         </div>
 

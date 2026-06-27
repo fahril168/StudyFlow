@@ -95,4 +95,55 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Password Visibility Toggle Logic
+  const setupPasswordToggle = (inputId) => {
+    const passwordInput = document.getElementById(inputId);
+    if (passwordInput) {
+      const wrapper = passwordInput.closest('.input-wrapper');
+      if (wrapper) {
+        wrapper.addEventListener('click', (e) => {
+          const toggleIcon = e.target.closest('.toggle-password');
+          if (toggleIcon) {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Update icon based on state
+            if (type === 'text') {
+              toggleIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+              toggleIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+          }
+        });
+      }
+    }
+  };
+
+  setupPasswordToggle('login-password');
+  setupPasswordToggle('reg-password');
+
+  // Theme toggle logic for login page
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+  if (themeToggleBtn) {
+    const currentTheme = localStorage.getItem('studyflow_theme') || 'light';
+    if (currentTheme === 'dark') {
+      themeToggleBtn.innerHTML = '<i data-lucide="sun"></i>';
+    }
+    
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('studyflow_theme', 'light');
+        themeToggleBtn.innerHTML = '<i data-lucide="moon"></i>';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('studyflow_theme', 'dark');
+        themeToggleBtn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+      lucide.createIcons();
+    });
+  }
 });

@@ -100,6 +100,20 @@
   pointer-events: none;
 }
 
+.input-wrapper i.toggle-password,
+.input-wrapper svg.toggle-password {
+  left: auto !important;
+  right: 14px !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  transition: color 0.2s ease;
+}
+
+.input-wrapper i.toggle-password:hover,
+.input-wrapper svg.toggle-password:hover {
+  color: var(--primary) !important;
+}
+
 .form-control {
   width: 100%;
   padding: 12px 14px 12px 42px;

@@ -34,6 +34,13 @@
 
   <!-- Chart.js for beautiful productivity analytics -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Prevent theme flash -->
+  <script>
+    if (localStorage.getItem('studyflow_theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  </script>
 </head>
 
 <body>
@@ -149,6 +156,11 @@
         </div>
 
         <div class="header-right">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle-btn" class="notification-btn" title="Ganti Tema" style="margin-right: 8px;">
+            <i data-lucide="moon" id="theme-icon"></i>
+          </button>
+
           <!-- Notification Dropdown -->
           <div class="notification-dropdown-wrapper">
             <button id="notification-btn" class="notification-btn" title="Reminders">

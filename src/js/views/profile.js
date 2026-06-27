@@ -93,6 +93,22 @@ export async function renderProfile(container, navigateTo) {
               <input type="email" id="profile-email-input" class="form-input-control" value="${user.email}" required>
             </div>
 
+            <div class="chart-card-header" style="margin-top: 32px; margin-bottom: 20px;">
+              <h3 class="chart-card-title"><i data-lucide="lock"></i> Keamanan Akun</h3>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="profile-new-password-input">Password Baru (Opsional)</label>
+                <input type="password" id="profile-new-password-input" class="form-input-control" placeholder="Kosongkan jika tidak diubah">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profile-confirm-password-input">Konfirmasi Password Baru</label>
+                <input type="password" id="profile-confirm-password-input" class="form-input-control" placeholder="Ketik ulang password baru">
+              </div>
+            </div>
+
             <div class="modal-footer-btns" style="border-top: 1px solid var(--border-color); padding-top: 16px; justify-content: flex-start;">
               <button type="submit" class="modal-btn btn-confirm" style="width: auto; padding: 10px 24px;">Simpan Perubahan</button>
             </div>
@@ -130,20 +146,39 @@ export async function renderProfile(container, navigateTo) {
       const nimVal = container.querySelector('#profile-nim-input').value.trim();
       const prodiVal = container.querySelector('#profile-prodi-input').value.trim();
       const emailVal = container.querySelector('#profile-email-input').value.trim();
+      const newPasswordVal = container.querySelector('#profile-new-password-input').value;
+      const confirmPasswordVal = container.querySelector('#profile-confirm-password-input').value;
 
       if (!nameVal || !nimVal || !prodiVal || !emailVal) {
         showToast('Semua kolom profil wajib diisi!', 'error');
         return;
       }
 
-      // Update state
-      const res = await stateManager.updateProfile({
+      if (newPasswordVal) {
+        if (newPasswordVal.length < 6) {
+           showToast('Password baru minimal 6 karakter!', 'error');
+           return;
+        }
+        if (newPasswordVal !== confirmPasswordVal) {
+           showToast('Konfirmasi password tidak cocok!', 'error');
+           return;
+        }
+      }
+
+      const updatePayload = {
         name: nameVal,
         nim: nimVal,
         prodi: prodiVal,
         email: emailVal,
         avatar: selectedAvatar
-      });
+      };
+
+      if (newPasswordVal) {
+        updatePayload.password = newPasswordVal;
+      }
+
+      // Update state
+      const res = await stateManager.updateProfile(updatePayload);
 
       if (res.success) {
         showToast('Profil Anda berhasil diperbarui!', 'success');

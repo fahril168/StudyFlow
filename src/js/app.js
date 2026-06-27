@@ -213,6 +213,29 @@ function checkAuthAndRoute() {
 
 // Layout Listeners
 function initAppLayout() {
+  // Theme toggle
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+  if (themeToggleBtn) {
+    const currentTheme = localStorage.getItem('studyflow_theme') || 'light';
+    if (currentTheme === 'dark') {
+      themeToggleBtn.innerHTML = '<i data-lucide="sun"></i>';
+    }
+    
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('studyflow_theme', 'light');
+        themeToggleBtn.innerHTML = '<i data-lucide="moon"></i>';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('studyflow_theme', 'dark');
+        themeToggleBtn.innerHTML = '<i data-lucide="sun"></i>';
+      }
+      lucide.createIcons();
+    });
+  }
+
   // Mobile sidebar toggler
   sidebarToggle.addEventListener('click', (e) => {
     e.stopPropagation();
