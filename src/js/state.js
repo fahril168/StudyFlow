@@ -55,12 +55,12 @@ class StateManager {
   }
 
   // Authentication API (Asynchronous API Calls)
-  async login(email, password) {
+  async login(username, password) {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ username, password })
       });
       const data = await res.json();
 
@@ -78,12 +78,12 @@ class StateManager {
     }
   }
 
-  async register(name, nim, prodi, email, password, role = 'student') {
+  async register(name, nim, prodi, username, password, role = 'student') {
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, nim, prodi, email, password, role })
+        body: JSON.stringify({ name, nim, prodi, username, password, role })
       });
       const data = await res.json();
       return data;

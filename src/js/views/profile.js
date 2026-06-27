@@ -90,14 +90,16 @@ export async function renderProfile(container, navigateTo) {
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label" for="profile-email-input">Alamat Email</label>
-                <input type="email" id="profile-email-input" class="form-input-control" value="${user.email}" required>
+                <label class="form-label" for="profile-username-input">Username</label>
+                <input type="text" id="profile-username-input" class="form-input-control" value="${user.username}" required>
               </div>
               
+              ${!isAdmin ? `
               <div class="form-group">
                 <label class="form-label" for="profile-semester-input">Semester Saat Ini</label>
                 <input type="number" id="profile-semester-input" class="form-input-control" min="1" max="14" value="${user.current_semester || 1}" required>
               </div>
+              ` : ''}
             </div>
 
             <div class="chart-card-header" style="margin-top: 32px; margin-bottom: 20px;">
@@ -152,13 +154,14 @@ export async function renderProfile(container, navigateTo) {
       const nameVal = container.querySelector('#profile-name-input').value.trim();
       const nimVal = container.querySelector('#profile-nim-input').value.trim();
       const prodiVal = container.querySelector('#profile-prodi-input').value.trim();
-      const emailVal = container.querySelector('#profile-email-input').value.trim();
-      const semesterVal = parseInt(container.querySelector('#profile-semester-input').value) || 1;
+      const usernameVal = container.querySelector('#profile-username-input').value.trim();
+      const semInput = container.querySelector('#profile-semester-input');
+      const semesterVal = semInput ? (parseInt(semInput.value) || 1) : (user.current_semester || 1);
       const newPasswordVal = container.querySelector('#profile-new-password-input').value;
       const confirmPasswordVal = container.querySelector('#profile-confirm-password-input').value;
 
-      if (!nameVal || !nimVal || !prodiVal || !emailVal) {
-        showToast('Semua kolom profil wajib diisi!', 'error');
+      if (!nameVal || !nimVal || !prodiVal || !usernameVal) {
+        showToast('Mohon lengkapi semua data wajib.', 'error');
         return;
       }
 
@@ -173,21 +176,21 @@ export async function renderProfile(container, navigateTo) {
         }
       }
 
-      const updatePayload = {
+      const updatedProfile = {
         name: nameVal,
         nim: nimVal,
         prodi: prodiVal,
-        email: emailVal,
+        username: usernameVal,
         avatar: selectedAvatar,
         current_semester: semesterVal
       };
 
       if (newPasswordVal) {
-        updatePayload.password = newPasswordVal;
+        updatedProfile.password = newPasswordVal;
       }
 
       // Update state
-      const res = await stateManager.updateProfile(updatePayload);
+      const res = await stateManager.updateProfile(updatedProfile);
 
       if (res.success) {
         showToast('Profil Anda berhasil diperbarui!', 'success');

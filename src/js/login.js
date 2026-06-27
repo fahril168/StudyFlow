@@ -59,10 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('login-email').value;
+      const username = document.getElementById('login-username').value;
       const password = document.getElementById('login-password').value;
       
-      const res = await stateManager.login(email, password);
+      const res = await stateManager.login(username, password);
       if (res.success) {
         showToast('Login berhasil! Mengalihkan...', 'success');
         setTimeout(() => {
@@ -81,15 +81,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const name = document.getElementById('reg-name').value;
       const nim = document.getElementById('reg-nim').value;
       const prodi = document.getElementById('reg-prodi').value;
-      const email = document.getElementById('reg-email').value;
+      const username = document.getElementById('reg-username').value;
       const password = document.getElementById('reg-password').value;
 
-      const res = await stateManager.register(name, nim, prodi, email, password, 'student');
+      const res = await stateManager.register(name, nim, prodi, username, password, 'student');
       if (res.success) {
         showToast('Pendaftaran berhasil! Silakan masuk.', 'success');
         registerView.classList.add('hidden');
         loginView.classList.remove('hidden');
-        document.getElementById('login-email').value = email;
+        document.getElementById('login-username').value = username;
       } else {
         showToast(res.message || 'Pendaftaran gagal.', 'error');
       }

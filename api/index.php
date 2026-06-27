@@ -44,7 +44,7 @@ try {
     // Create tables if they do not exist
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(50) PRIMARY KEY,
-        email VARCHAR(100) UNIQUE NOT NULL,
+        username VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(100) NOT NULL,
         name VARCHAR(100) NOT NULL,
         nim VARCHAR(50) NOT NULL,
@@ -173,6 +173,15 @@ try {
         // Ignore if already dropped
     }
 
+    // Migrate email to username
+    try {
+        $colCheck = $pdo->query("SHOW COLUMNS FROM users LIKE 'email'");
+        if ($colCheck->rowCount() > 0) {
+            $pdo->exec("ALTER TABLE users CHANGE email username VARCHAR(100) NOT NULL");
+        }
+    } catch (Exception $em) {
+        // Ignore if already renamed
+    }
 
 } catch (PDOException $e) {
     header('Content-Type: application/json', true, 500);
@@ -220,11 +229,11 @@ function sendError($message, $status = 500) {
 // Router dispatching
 if ($path === '/auth/login' && $request_method === 'POST') {
     $body = getJsonBody();
-    $email = isset($body['email']) ? strtolower($body['email']) : '';
+    $username = isset($body['username']) ? strtolower($body['username']) : '';
     $password = isset($body['password']) ? $body['password'] : '';
     
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(email) = ? AND password = ?");
-    $stmt->execute([$email, $password]);
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE LOWER(username) = ? AND password = ?");
+    $stmt->execute([$username, $password]);
     $user = $stmt->fetch();
     if ($user) {
         sendJson(['success' => true, 'user' => $user]);
@@ -238,24 +247,24 @@ elseif ($path === '/auth/register' && $request_method === 'POST') {
     $name = $body['name'] ?? '';
     $nim = $body['nim'] ?? '';
     $prodi = $body['prodi'] ?? '';
-    $email = isset($body['email']) ? strtolower($body['email']) : '';
+    $username = isset($body['username']) ? strtolower($body['username']) : '';
     $password = $body['password'] ?? '';
     $role = $body['role'] ?? 'student';
     
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE LOWER(email) = ?");
-    $stmt->execute([$email]);
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE LOWER(username) = ?");
+    $stmt->execute([$username]);
     if ($stmt->fetch()) {
-        sendJson(['success' => false, 'message' => 'Email sudah terdaftar.'], 400);
+        sendJson(['success' => false, 'message' => 'Username sudah terdaftar.'], 400);
     }
     
     $id = 'user-' . round(microtime(true) * 1000);
     $avatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=' . rawurlencode($name);
     
-    $stmt = $pdo->prepare("INSERT INTO users (id, email, password, name, nim, prodi, role, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$id, $email, $password, $name, $nim, $prodi, $role, $avatar]);
+    $stmt = $pdo->prepare("INSERT INTO users (id, username, password, name, nim, prodi, role, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$id, $username, $password, $name, $nim, $prodi, $role, $avatar]);
     
     sendJson(['success' => true, 'user' => [
-        'id' => $id, 'email' => $email, 'name' => $name, 'nim' => $nim, 'prodi' => $prodi, 'role' => $role, 'avatar' => $avatar
+        'id' => $id, 'username' => $username, 'name' => $name, 'nim' => $nim, 'prodi' => $prodi, 'role' => $role, 'avatar' => $avatar
     ]]);
 }
 
@@ -265,17 +274,17 @@ elseif ($path === '/profile' && $request_method === 'PUT') {
     $name = $body['name'] ?? '';
     $nim = $body['nim'] ?? '';
     $prodi = $body['prodi'] ?? '';
-    $email = $body['email'] ?? '';
+    $username = $body['username'] ?? '';
     $avatar = $body['avatar'] ?? '';
     $password = $body['password'] ?? '';
     $currentSemester = $body['current_semester'] ?? 1;
     
     if ($password !== '') {
-        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ?, password = ?, current_semester = ? WHERE id = ?");
-        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $password, $currentSemester, $userId]);
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, username = ?, avatar = ?, password = ?, current_semester = ? WHERE id = ?");
+        $stmt->execute([$name, $nim, $prodi, $username, $avatar, $password, $currentSemester, $userId]);
     } else {
-        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, email = ?, avatar = ?, current_semester = ? WHERE id = ?");
-        $stmt->execute([$name, $nim, $prodi, $email, $avatar, $currentSemester, $userId]);
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, nim = ?, prodi = ?, username = ?, avatar = ?, current_semester = ? WHERE id = ?");
+        $stmt->execute([$name, $nim, $prodi, $username, $avatar, $currentSemester, $userId]);
     }
     
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
